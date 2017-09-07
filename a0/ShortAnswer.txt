@@ -43,7 +43,9 @@ information.
 Answer 2:
 #############
 
-Both Hillary Clinton and Donald Trump follows WhiteHouse twitter page which is the house of the president and since both the candidates were running for president so it makes sense that inspite of rivalry they both follow the same twitter page.
+Both Hillary Clinton and Donald Trump follows WhiteHouse twitter page which is the house of the president and 
+since both the candidates were running for president so it makes sense that inspite of rivalry they both 
+follow the same twitter page.
 
 
 
@@ -61,11 +63,13 @@ Answer 3:
 ##############
 
 
-Every person have different interest and also some are more active than others on online socail network. By looking at the Gary Johnson twitter page we can say that he is more active than Donald Trump when it is about online social networking. 
+Every person have different interest and also some are more active than others on online socail network. 
+By looking at the Gary Johnson twitter page we can say that he is more active than Donald Trump when it is about online social networking. 
 
 Also, by looking at the Donald Trump followers we can say that he does not follow people that easy, his follower include mostly persons close to him.
 
-This will affect the analysis as we have less data on Donalad Trump as compare to Gary Johnson, we might analyse wrong facts about Donald Trump or might predict wrong inforation about him.
+This will affect the analysis as we have less data on Donalad Trump as compare to Gary Johnson, 
+we might analyse wrong facts about Donald Trump or might predict wrong inforation about him.
 
 
 
@@ -86,7 +90,8 @@ If we see total number of friends of all the users we will get: 5936 friends
 
 So, we have to call the api 4 + 5936 = 5940 times (we have 4 users + 5936 friends of those 4 users)
 
-to get the total number of followers of every user's friends  plus the users, we need to run the search query 5940 times
+to get the total number of followers of every user's friends  plus the users, 
+we need to run the search query 5940 times
 
 Now comes the twitter rate limit, which is 15 requests per 15 minute.
 
