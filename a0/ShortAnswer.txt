@@ -9,12 +9,28 @@ Trump.
 
 How is this approach misleading? How might you fix it?
 
+Answer 1:
+##############
+
+If we see friends per candidate of all the candidates then we can find that Jill Stein and Gary Johnson have more number of friends combined as compare to Hillary Clinton and Donald Trump.
+
+Jill Stein and Gary Johnson have 1648 + 3481 = 5129 friends together
+and Hillary Clinton and Donald Trump have 762 + 45 = 807 friends together
+
+So, it is possible that Jill Stein and Gary Johnson have more commom friends than Hillary Clinton and Donald Trump and that is why this approach is misleading.
+
+If both the group had the same number of friends then we could have concluded that Jill Stein and Gary Johnson are more similar than Hillary Clinton and Donald Trump.
+
+to fix this we can take the ratio of common friends to the total number of friends
+
+Jill Stein and Gary Johnson = 238 / 5129 = 0.046402
+
+and for,
+
+Hillary Clinton and Donald Trump = 1 / 807 = 0.001239
 
 
-
-
-
-
+Now, we can say that ratio of friend_Overlap of two group is not that different, so we cannot say that Jill Stein and Gary Johnson are similar.
 
 
 
@@ -24,9 +40,10 @@ who are rivals? Do some web searches to see if you can find out more
 information.
 
 
+Answer 2:
+#############
 
-
-
+Both Hillary Clinton and Donald Trump follows WhiteHouse twitter page which is the house of the president and since both the candidates were running for president so it makes sense that inspite of rivalry they both follow the same twitter page.
 
 
 
@@ -40,9 +57,15 @@ Johnson follows over 3K accounts, while Donald Trump follows less than
 50). Why do you think this is? How might that affect our analysis?
 
 
+Answer 3:
+##############
 
 
+Every person have different interest and also some are more active than others on online socail network. By looking at the Gary Johnson twitter page we can say that he is more active than Donald Trump when it is about online social networking. 
 
+Also, by looking at the Donald Trump followers we can say that he does not follow people that easy, his follower include mostly persons close to him.
+
+This will affect the analysis as we have less data on Donalad Trump as compare to Gary Johnson, we might analyse wrong facts about Donald Trump or might predict wrong inforation about him.
 
 
 
@@ -55,3 +78,16 @@ https://dev.twitter.com/rest/reference/get/friends/ids, how many requests will
 we have to make? Given how Twitter does rate limiting
 (https://dev.twitter.com/rest/public/rate-limiting), approximately how many
 minutes will it take to collect this data?
+
+Answer 4:
+#############
+
+If we see total number of friends of all the users we will get: 5936 friends
+
+So, we have to call the api 4 + 5936 = 5940 times (we have 4 users + 5936 friends of those 4 users)
+
+to get the total number of followers of every user's friends  plus the users, we need to run the search query 5940 times
+
+Now comes the twitter rate limit, which is 15 requests per 15 minute.
+
+So, it will take (5940/15) * 15 =  5940 minutes to collect the data

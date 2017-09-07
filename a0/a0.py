@@ -37,10 +37,11 @@ import sys
 import time
 from TwitterAPI import TwitterAPI
 
-consumer_key = 'fixme'
-consumer_secret = 'fixme'
-access_token = 'fixme'
-access_token_secret = 'fixme'
+
+consumer_key = 'sAwECNV0gLYBb26Z2eY0ER0zV'
+consumer_secret = 'jlElSa6mBzNuBY9JYeI74Xd7LsF8Hzxxgi0Wjyfi4O5xvGmpcr'
+access_token = '332187569-NdV3vDmOshlV1ZApeoJdbIBcSBXPQGP2ot7M6ga5'
+access_token_secret = '4fcIT7ob2UmkQ09TzLzai0R7rerdcNPFbQnA9kJrIMu2Y'
 
 
 # This method is done for you.
@@ -68,6 +69,12 @@ def read_screen_names(filename):
     """
     ###TODO
     pass
+
+    names = open(filename, "r")
+    all_names = names.read().splitlines()
+    names.close()
+    return all_names
+
 
 
 # I've provided the method below to handle Twitter's rate limiting.
@@ -115,6 +122,18 @@ def get_users(twitter, screen_names):
     ###TODO
     pass
 
+    user_name = []
+    for i in screen_names:
+        user_name.append(i)
+        
+    req = robust_request(twitter, "users/lookup",{"screen_name" : user_name})
+    
+    list = []
+    for i in req:
+        list.append(i)
+        
+    return list
+
 
 def get_friends(twitter, screen_name):
     """ Return a list of Twitter IDs for users that this person follows, up to 5000.
@@ -140,6 +159,14 @@ def get_friends(twitter, screen_name):
     ###TODO
     pass
 
+    
+    req = robust_request(twitter, "friends/ids",{"screen_name" : screen_name, "count":5000} )
+    all_friends = []
+    for i in req:
+        all_friends.append(i)
+    return sorted(all_friends)
+
+    
 
 def add_all_friends(twitter, users):
     """ Get the list of accounts each user follows.
@@ -162,6 +189,11 @@ def add_all_friends(twitter, users):
     ###TODO
     pass
 
+    key = "friends"
+    for name in users:
+        screen_name = name['screen_name']
+        name[key] = get_friends(twitter,screen_name)
+
 
 def print_num_friends(users):
     """Print the number of friends per candidate, sorted by candidate name.
@@ -174,6 +206,12 @@ def print_num_friends(users):
     ###TODO
     pass
 
+    key = "friends"
+    for name in users:
+        screen_name = name['screen_name']
+        no_of_friends = len(name[key])
+        print(screen_name,no_of_friends)
+        
 
 def count_friends(users):
     """ Count how often each friend is followed.
@@ -190,7 +228,15 @@ def count_friends(users):
     """
     ###TODO
     pass
+    
+    all_friends = []
+    for name in users:
+        all_friends += name['friends']
 
+    common = Counter(all_friends)
+    return common
+    
+    
 
 def friend_overlap(users):
     """
@@ -215,7 +261,20 @@ def friend_overlap(users):
     """
     ###TODO
     pass
-
+    
+    overlap_list = []
+    key = 'friends'
+    for name in range(len(users)):
+        screen_name = users[name]['screen_name']
+        for new_name in range(name+1, len(users)):
+            new_screen_name = users[new_name]['screen_name']
+            A= set(users[name][key])
+            B= set(users[new_name][key])
+            length = len(A&B)
+            overlap_list.append((screen_name,new_screen_name,length)) 
+    sort = sorted(overlap_list, key=lambda my_list: (-my_list[2], my_list[0],my_list[1]))
+    return sort
+    
 
 def followed_by_hillary_and_donald(users, twitter):
     """
@@ -233,6 +292,18 @@ def followed_by_hillary_and_donald(users, twitter):
     """
     ###TODO
     pass
+    for name in users:
+        if name['screen_name']=='HillaryClinton':
+            A = set(name['friends'])
+        elif name['screen_name']=='realDonaldTrump':
+            B = set(name['friends'])
+    common_friend = (A&B)
+    req = robust_request(twitter, "users/lookup", {"user_id" : common_friend})
+
+    for i in req:
+        com_friend = i['screen_name']
+    return com_friend
+        
 
 
 def create_graph(users, friend_counts):
@@ -252,7 +323,19 @@ def create_graph(users, friend_counts):
     """
     ###TODO
     pass
+    G = nx.Graph()
+    
+    for name in users:
+        screen_name = name['screen_name']
+        G.add_node(screen_name)
+        for friends in friend_counts:
+            if friend_counts[friends] > 1:
+                if friends in name['friends']:
+                    G.add_edge(friends,screen_name)
+    return G
 
+    
+    
 
 def draw_network(graph, users, filename):
     """
@@ -266,8 +349,19 @@ def draw_network(graph, users, filename):
     """
     ###TODO
     pass
-
-
+    
+    labels = {}
+    for node in graph.nodes():
+        for name in users:
+            screen_name = name['screen_name']
+            if node == screen_name:
+                labels[node] = node
+                
+    plt.figure(figsize=(15,15))
+    nx.draw_networkx(graph, edge_color = 'grey', labels = labels)
+    plt.savefig(filename)
+    
+    
 def main():
     """ Main method. You should not modify this. """
     twitter = get_twitter()
@@ -284,12 +378,10 @@ def main():
     print('Most common friends:\n%s' % str(friend_counts.most_common(5)))
     print('Friend Overlap:\n%s' % str(friend_overlap(users)))
     print('User followed by Hillary and Donald: %s' % followed_by_hillary_and_donald(users, twitter))
-
     graph = create_graph(users, friend_counts)
     print('graph has %s nodes and %s edges' % (len(graph.nodes()), len(graph.edges())))
     draw_network(graph, users, 'network.png')
     print('network drawn to network.png')
-
 
 if __name__ == '__main__':
     main()
