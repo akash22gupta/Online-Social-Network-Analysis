@@ -76,6 +76,11 @@ def bfs(graph, root, max_depth):
     """
     ###TODO
     pass
+    
+    q = deque()
+    print(graph.neighbours('root'))
+    
+    
 
 
 def complexity_of_bfs(V, E, K):
@@ -212,25 +217,8 @@ def partition_girvan_newman(graph, max_depth):
     ###TODO
     pass
 
-def get_subgraph(graph, min_degree):
-    """Return a subgraph containing nodes whose degree is
-    greater than or equal to min_degree.
-    We'll use this in the main method to prune the original graph.
 
-    Params:
-      graph........a networkx graph
-      min_degree...degree threshold
-    Returns:
-      a networkx graph, filtered as defined above.
-
-    >>> subgraph = get_subgraph(example_graph(), 3)
-    >>> sorted(subgraph.nodes())
-    ['B', 'D', 'F']
-    >>> len(subgraph.edges())
-    2
-    """
-    ###TODO
-    pass
+    
 
 
 """"
@@ -238,6 +226,7 @@ Compute the normalized cut for each discovered cluster.
 I've broken this down into the three next methods.
 """
 
+    
 def volume(nodes, graph):
     """
     Compute the volume for a list of nodes, which
@@ -252,7 +241,14 @@ def volume(nodes, graph):
     """
     ###TODO
     pass
-
+    edge_list = []
+    edge_list_main =[]
+    for node in nodes:
+        edge_list.append(graph.edges(node))
+    edge_list_main = graph.edges(nodes)
+    length = len(edge_list_main)
+    return length
+    
 
 def cut(S, T, graph):
     """
@@ -271,6 +267,15 @@ def cut(S, T, graph):
     """
     ###TODO
     pass
+    length = 0
+    neighbor = []
+    for i in S:
+        neighbor  = graph.neighbors(i)
+        for j in T:
+            if j in neighbor:
+                length += 1
+    return length    
+
 
 
 def norm_cut(S, T, graph):
@@ -286,27 +291,12 @@ def norm_cut(S, T, graph):
     """
     ###TODO
     pass
+    cut_val = cut(S,T,graph)
+    vol_S = volume(S,graph)
+    vol_T = volume(T,graph)
+    NCV =  (cut_val/vol_S) + (cut_val/vol_T)
+    return NCV
 
-
-def score_max_depths(graph, max_depths):
-    """
-    In order to assess the quality of the approximate partitioning method
-    we've developed, we will run it with different values for max_depth
-    and see how it affects the norm_cut score of the resulting partitions.
-    Recall that smaller norm_cut scores correspond to better partitions.
-
-    Params:
-      graph........a networkx Graph
-      max_depths...a list of ints for the max_depth values to be passed
-                   to calls to partition_girvan_newman
-
-    Returns:
-      A list of (int, float) tuples representing the max_depth and the
-      norm_cut value obtained by the partitions returned by
-      partition_girvan_newman. See Log.txt for an example.
-    """
-    ###TODO
-    pass
 
 
 ## Link prediction
@@ -467,17 +457,75 @@ def read_graph():
     return nx.read_edgelist('edges.txt.gz', delimiter='\t')
 
 
+
+def get_subgraph(graph, min_degree):
+    """Return a subgraph containing nodes whose degree is
+    greater than or equal to min_degree.
+    We'll use this in the main method to prune the original graph.
+
+    Params:
+      graph........a networkx graph
+      min_degree...degree threshold
+    Returns:
+      a networkx graph, filtered as defined above.
+
+    >>> subgraph = get_subgraph(example_graph(), 3)
+    >>> sorted(subgraph.nodes())
+    ['B', 'D', 'F']
+    >>> len(subgraph.edges())
+    2
+    """
+    ###TODO
+    pass
+    node_with_degree = []
+    for node in graph:
+        if len(graph[node]) >= min_degree:
+            node_with_degree.append(node)
+    ga=graph.subgraph(node_with_degree)    
+    return ga
+
+
+def score_max_depths(graph, max_depths):
+    """
+    In order to assess the quality of the approximate partitioning method
+    we've developed, we will run it with different values for max_depth
+    and see how it affects the norm_cut score of the resulting partitions.
+    Recall that smaller norm_cut scores correspond to better partitions.
+
+    Params:
+      graph........a networkx Graph
+      max_depths...a list of ints for the max_depth values to be passed
+                   to calls to partition_girvan_newman
+
+    Returns:
+      A list of (int, float) tuples representing the max_depth and the
+      norm_cut value obtained by the partitions returned by
+      partition_girvan_newman. See Log.txt for an example.
+    """
+    ###TODO
+    pass
+    
+    final_list = []
+    for i in max_depths:
+        components = partition_girvan_newman(graph, i)
+        final_list.append((i, norm_cut(components[0].nodes(),components[1].nodes(),graph)))
+        
+    return final_list
+
+
 def main():
     """
     FYI: This takes ~10-15 seconds to run on my laptop.
     """
     download_data()
-    graph = read_graph()
+    graph = example_graph()
     print('graph has %d nodes and %d edges' %
           (graph.order(), graph.number_of_edges()))
     subgraph = get_subgraph(graph, 2)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
+    
+    """
     print('norm_cut scores by max_depth:')
     print(score_max_depths(subgraph, range(1,5)))
     clusters = partition_girvan_newman(subgraph, 3)
@@ -502,7 +550,8 @@ def main():
     print('\ntop path scores for Bill Gates for beta=.1:')
     print(path_scores)
     print('path accuracy for beta .1=%g' %
-          evaluate([x[0] for x in path_scores], subgraph))
+        evaluate([x[0] for x in path_scores], subgraph))
+    """
 
 
 if __name__ == '__main__':
