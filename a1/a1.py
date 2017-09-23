@@ -28,100 +28,12 @@ def example_graph():
     """
     g = nx.Graph()
     g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
+    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')]) 
+    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
+    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E'), ('B', 'C'), ('B', 'F'), ('C', 'F'), ('D', 'G'), ('D', 'H'), ('E', 'H'), ('F', 'I'), ('G', 'I'), ('G', 'J'), ('H', 'J'), ('I', 'K'), ('J', 'K')])
     return g
 
 
-    
-def bfs(graph, root, max_depth):
-    """
-    Perform breadth-first search to compute the shortest paths from a root node to all
-    other nodes in the graph. To reduce running time, the max_depth parameter ends
-    the search after the specified depth.
-    E.g., if max_depth=2, only paths of length 2 or less will be considered.
-    This means that nodes greather than max_depth distance from the root will not
-    appear in the result.
-
-    You may use these two classes to help with this implementation:
-      https://docs.python.org/3.5/library/collections.html#collections.defaultdict
-      https://docs.python.org/3.5/library/collections.html#collections.deque
-
-    Params:
-      graph.......A networkx Graph
-      root........The root node in the search graph (a string). We are computing
-                  shortest paths from this node to all others.
-      max_depth...An integer representing the maximum depth to search.
-
-    Returns:
-      node2distances...dict from each node to the length of the shortest path from
-                       the root node
-      node2num_paths...dict from each node to the number of shortest paths from the
-                       root node that pass through this node.
-      node2parents.....dict from each node to the list of its parents in the search
-                       tree
-
-    In the doctests below, we first try with max_depth=5, then max_depth=2.
-
-    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 5)
-    >>> sorted(node2distances.items())
-    [('A', 3), ('B', 2), ('C', 3), ('D', 1), ('E', 0), ('F', 1), ('G', 2)]
-    >>> sorted(node2num_paths.items())
-    [('A', 1), ('B', 1), ('C', 1), ('D', 1), ('E', 1), ('F', 1), ('G', 2)]
-    >>> sorted((node, sorted(parents)) for node, parents in node2parents.items())
-    [('A', ['B']), ('B', ['D']), ('C', ['B']), ('D', ['E']), ('F', ['E']), ('G', ['D', 'F'])]
-    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 2)
-    >>> sorted(node2distances.items())
-    [('B', 2), ('D', 1), ('E', 0), ('F', 1), ('G', 2)]
-    >>> sorted(node2num_paths.items())
-    [('B', 1), ('D', 1), ('E', 1), ('F', 1), ('G', 2)]
-    >>> sorted((node, sorted(parents)) for node, parents in node2parents.items())
-    [('B', ['D']), ('D', ['E']), ('F', ['E']), ('G', ['D', 'F'])]
-    """
-    ###TODO
-    pass
-    
-    count = 0
-    flag = 0
-    q = deque()
-    q.append(root)
-    seen = set()
-    node2distances = {}
-    node2distances[root] = count
-    count += 1
-    while len(q) > 0 and count <= max_depth:
-        n = q.popleft()
-        if n not in seen:
-            seen.add(n)
-        neighbor = graph.neighbors(n)
-        for nn in neighbor:
-            if nn not in seen and nn not in q:
-                q.append(nn)
-                node2distances[nn] = count
-                flag = 1
-        if flag == 1:
-            count +=1
-            flag = 0      
-    print(sorted(node2distances.items()))
-    
-    parent ={}
-    q = deque()
-    q.append(root)
-    seen =set()
-    parent[root] = root
-    child = {}
-    level = {}
-    while len(q) > 0:
-        n = q.popleft()
-        if n not in seen:
-            seen.add(n)
-        neighbor = graph.neighbors(n)
-        for i in neighbour:
-            if i in 
-        child[n] = neighbor
-        level[1] = neighbor
-        for nn in neighbor:
-            if nn not in seen and nn not in q:
-                q.append(nn)
-                parent[nn] = n
     
     
 
@@ -606,10 +518,10 @@ def main():
     graph = example_graph()
     print('graph has %d nodes and %d edges' %
           (graph.order(), graph.number_of_edges()))
-    subgraph = get_subgraph(graph, 2)
+    subgraph = get_subgraph(graph, 5)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
-    ###bfs(graph,'D',3)
+    bfs(graph,'E',2)
     """
     print('norm_cut scores by max_depth:')
     print(score_max_depths(subgraph, range(1,5)))
