@@ -34,7 +34,98 @@ def example_graph():
     return g
 
 
+def bfs(graph, root, max_depth):
+    """
+    Perform breadth-first search to compute the shortest paths from a root node to all
+    other nodes in the graph. To reduce running time, the max_depth parameter ends
+    the search after the specified depth.
+    E.g., if max_depth=2, only paths of length 2 or less will be considered.
+    This means that nodes greather than max_depth distance from the root will not
+    appear in the result.
+
+    You may use these two classes to help with this implementation:
+      https://docs.python.org/3.5/library/collections.html#collections.defaultdict
+      https://docs.python.org/3.5/library/collections.html#collections.deque
+
+    Params:
+      graph.......A networkx Graph
+      root........The root node in the search graph (a string). We are computing
+                  shortest paths from this node to all others.
+      max_depth...An integer representing the maximum depth to search.
+
+    Returns:
+      node2distances...dict from each node to the length of the shortest path from
+                       the root node
+      node2num_paths...dict from each node to the number of shortest paths from the
+                       root node that pass through this node.
+      node2parents.....dict from each node to the list of its parents in the search
+                       tree
+
+    In the doctests below, we first try with max_depth=5, then max_depth=2.
+
+    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 5)
+    >>> sorted(node2distances.items())
+    [('A', 3), ('B', 2), ('C', 3), ('D', 1), ('E', 0), ('F', 1), ('G', 2)]
+    >>> sorted(node2num_paths.items())
+    [('A', 1), ('B', 1), ('C', 1), ('D', 1), ('E', 1), ('F', 1), ('G', 2)]
+    >>> sorted((node, sorted(parents)) for node, parents in node2parents.items())
+    [('A', ['B']), ('B', ['D']), ('C', ['B']), ('D', ['E']), ('F', ['E']), ('G', ['D', 'F'])]
+    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 2)
+    >>> sorted(node2distances.items())
+    [('B', 2), ('D', 1), ('E', 0), ('F', 1), ('G', 2)]
+    >>> sorted(node2num_paths.items())
+    [('B', 1), ('D', 1), ('E', 1), ('F', 1), ('G', 2)]
+    >>> sorted((node, sorted(parents)) for node, parents in node2parents.items())
+    [('B', ['D']), ('D', ['E']), ('F', ['E']), ('G', ['D', 'F'])]
+    """
+    ###TODO
+    pass
     
+    flag = 0
+    flag1 = 0
+    q = deque()
+    q1 = deque()
+    q.append(root)
+    seen = set()
+    node2distances = defaultdict(lambda:-1)
+    node2num_paths = defaultdict(int)
+    node2parents = defaultdict(list)
+    node2distances[root] = 0
+    node2num_paths[root] = 1
+    #count += 1
+    while len(q) > 0:
+        n = q.popleft()
+        if n not in seen:
+            seen.add(n)
+        neighbor = graph.neighbors(n)
+        for nn in neighbor:
+            #if nn not in seen and nn not in q:
+             if node2distances[n] < max_depth:
+                    if node2distances[nn] < 0:
+                        q.append(nn)
+                        node2distances[nn] = node2distances[n] + 1
+
+            
+    q1.append(root)
+    while len(q1) > 0:
+        n1 = q1.popleft()
+        if n1 not in seen:
+            seen.add(n1)
+        neighbors = graph.neighbors(n1)
+        for nn in neighbors:
+            if node2distances[nn] > node2distances[n1]:
+                q1.append(nn)
+                if n1 not in node2parents[nn]:
+                    node2parents[nn].append(n1)
+                    distance = node2distances[nn] - 1
+                    if node2distances[n1] == distance:
+                        node2num_paths[nn] += node2num_paths[n1]
+    
+        
+            
+    print(sorted(node2distances.items()))
+    print(sorted(node2num_paths.items()))
+    print(sorted(node2parents.items()))    
     
 
 
@@ -56,43 +147,7 @@ def complexity_of_bfs(V, E, K):
     return V+E
 
 
-def bottom_up(root, node2distances, node2num_paths, node2parents):
-    """
-    Compute the final step of the Girvan-Newman algorithm.
-    See p 352 From your text:
-    https://github.com/iit-cs579/main/blob/master/read/lru-10.pdf
-        The third and final step is to calculate for each edge e the sum
-        over all nodes Y of the fraction of shortest paths from the root
-        X to Y that go through e. This calculation involves computing this
-        sum for both nodes and edges, from the bottom. Each node other
-        than the root is given a credit of 1, representing the shortest
-        path to that node. This credit may be divided among nodes and
-        edges above, since there could be several different shortest paths
-        to the node. The rules for the calculation are as follows: ...
 
-    Params:
-      root.............The root node in the search graph (a string). We are computing
-                       shortest paths from this node to all others.
-      node2distances...dict from each node to the length of the shortest path from
-                       the root node
-      node2num_paths...dict from each node to the number of shortest paths from the
-                       root node that pass through this node.
-      node2parents.....dict from each node to the list of its parents in the search
-                       tree
-    Returns:
-      A dict mapping edges to credit value. Each key is a tuple of two strings
-      representing an edge (e.g., ('A', 'B')). Make sure each of these tuples
-      are sorted alphabetically (so, it's ('A', 'B'), not ('B', 'A')).
-
-      Any edges excluded from the results in bfs should also be exluded here.
-
-    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 5)
-    >>> result = bottom_up('E', node2distances, node2num_paths, node2parents)
-    >>> sorted(result.items())
-    [(('A', 'B'), 1.0), (('B', 'C'), 1.0), (('B', 'D'), 3.0), (('D', 'E'), 4.5), (('D', 'G'), 0.5), (('E', 'F'), 1.5), (('F', 'G'), 0.5)]
-    """
-    ###TODO
-    pass
 
 
 def approximate_betweenness(graph, max_depth):
@@ -521,7 +576,7 @@ def main():
     subgraph = get_subgraph(graph, 5)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
-    bfs(graph,'E',2)
+    bfs(graph,'E',5)
     """
     print('norm_cut scores by max_depth:')
     print(score_max_depths(subgraph, range(1,5)))
@@ -552,3 +607,41 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+def bottom_up(root, node2distances, node2num_paths, node2parents):
+    """
+    Compute the final step of the Girvan-Newman algorithm.
+    See p 352 From your text:
+    https://github.com/iit-cs579/main/blob/master/read/lru-10.pdf
+        The third and final step is to calculate for each edge e the sum
+        over all nodes Y of the fraction of shortest paths from the root
+        X to Y that go through e. This calculation involves computing this
+        sum for both nodes and edges, from the bottom. Each node other
+        than the root is given a credit of 1, representing the shortest
+        path to that node. This credit may be divided among nodes and
+        edges above, since there could be several different shortest paths
+        to the node. The rules for the calculation are as follows: ...
+
+    Params:
+      root.............The root node in the search graph (a string). We are computing
+                       shortest paths from this node to all others.
+      node2distances...dict from each node to the length of the shortest path from
+                       the root node
+      node2num_paths...dict from each node to the number of shortest paths from the
+                       root node that pass through this node.
+      node2parents.....dict from each node to the list of its parents in the search
+                       tree
+    Returns:
+      A dict mapping edges to credit value. Each key is a tuple of two strings
+      representing an edge (e.g., ('A', 'B')). Make sure each of these tuples
+      are sorted alphabetically (so, it's ('A', 'B'), not ('B', 'A')).
+
+      Any edges excluded from the results in bfs should also be exluded here.
+
+    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 5)
+    >>> result = bottom_up('E', node2distances, node2num_paths, node2parents)
+    >>> sorted(result.items())
+    [(('A', 'B'), 1.0), (('B', 'C'), 1.0), (('B', 'D'), 3.0), (('D', 'E'), 4.5), (('D', 'G'), 0.5), (('E', 'F'), 1.5), (('F', 'G'), 0.5)]
+    """
+    ###TODO
+    pass
