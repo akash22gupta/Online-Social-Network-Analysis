@@ -27,8 +27,8 @@ def example_graph():
     Do not modify.
     """
     g = nx.Graph()
-    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
-    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')])
+    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
+    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E'), ('B', 'C'), ('B', 'F'), ('C', 'F'), ('D', 'G'), ('D', 'H'), ('E', 'H'), ('F', 'I'), ('G', 'I'), ('G', 'J'), ('H', 'J'), ('I', 'K'), ('J', 'K')])
     return g
@@ -122,7 +122,7 @@ def bfs(graph, root, max_depth):
                         node2num_paths[nn] += node2num_paths[n1]
 
 
-
+    node2distances = { k:v for k, v in node2distances.items() if v != -1 }
     #print(sorted(node2distances.items()))
     #print(sorted(node2num_paths.items()))
     #print(sorted(node2parents.items()))
@@ -149,6 +149,76 @@ def complexity_of_bfs(V, E, K):
     return V+E
 
 
+def bottom_up(root, node2distances, node2num_paths, node2parents):
+    """
+    Compute the final step of the Girvan-Newman algorithm.
+    See p 352 From your text:
+    https://github.com/iit-cs579/main/blob/master/read/lru-10.pdf
+        The third and final step is to calculate for each edge e the sum
+        over all nodes Y of the fraction of shortest paths from the root
+        X to Y that go through e. This calculation involves computing this
+        sum for both nodes and edges, from the bottom. Each node other
+        than the root is given a credit of 1, representing the shortest
+        path to that node. This credit may be divided among nodes and
+        edges above, since there could be several different shortest paths
+        to the node. The rules for the calculation are as follows: ...
+
+    Params:
+      root.............The root node in the search graph (a string). We are computing
+                       shortest paths from this node to all others.
+      node2distances...dict from each node to the length of the shortest path from
+                       the root node
+      node2num_paths...dict from each node to the number of shortest paths from the
+                       root node that pass through this node.
+      node2parents.....dict from each node to the list of its parents in the search
+                       tree
+    Returns:
+      A dict mapping edges to credit value. Each key is a tuple of two strings
+      representing an edge (e.g., ('A', 'B')). Make sure each of these tuples
+      are sorted alphabetically (so, it's ('A', 'B'), not ('B', 'A')).
+
+      Any edges excluded from the results in bfs should also be exluded here.
+
+    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 5)
+    >>> result = bottom_up('E', node2distances, node2num_paths, node2parents)
+    >>> sorted(result.items())
+    [(('A', 'B'), 1.0), (('B', 'C'), 1.0), (('B', 'D'), 3.0), (('D', 'E'), 4.5), (('D', 'G'), 0.5), (('E', 'F'), 1.5), (('F', 'G'), 0.5)]
+    """
+    ###TODO
+    pass
+    credit = {}
+    edge_betweenness = {}
+    sorted_node2distances = sorted(node2distances.items(), key=lambda x:x[1], reverse = True)
+    #print(sorted_node2distances)
+    for k,v in sorted_node2distances:
+        credit[k] = 1
+    credit[root] = 0
+    #print(credit)
+
+    for k,v in sorted_node2distances:
+        if node2num_paths[k] == 1 and k!=root:
+            #print(node2num_paths[k],k, node2parents[k])
+            #print(credit[k], credit[node2parents[k][0]])
+            credit[node2parents[k][0]] = credit[node2parents[k][0]] + credit[k]
+            if k > node2parents[k][0]:
+                edges = [node2parents[k][0],k]
+            else:
+                edges = [k,node2parents[k][0]]
+            edge_betweenness[(edges[0],edges[1])] = credit[k]
+        elif node2num_paths[k] > 1 and k!=root:
+            credit[k] = credit[k]/node2num_paths[k]
+            for parent in node2parents[k]:
+                credit[parent] = credit[parent] + (credit[k] * node2num_paths[parent])
+                if k > parent:
+                    edges = [parent,k]
+                else:
+                    edges = [k,parent]
+                edge_betweenness[(edges[0],edges[1])] = credit[k]* node2num_paths[parent]
+
+    #print(credit)
+    #print(sorted(edge_betweenness.items()))
+    #print(edge_betweenness)
+    return edge_betweenness
 
 
 
@@ -287,8 +357,10 @@ def volume(nodes, graph):
     """
     ###TODO
     pass
+
     edge_list = []
     edge_list_main =[]
+    #print(nodes)
     for node in nodes:
         edge_list.append(graph.edges(node))
     edge_list_main = graph.edges(nodes)
@@ -320,6 +392,7 @@ def cut(S, T, graph):
         for j in T:
             if j in neighbor:
                 length += 1
+    #print(length)
     return length
 
 
@@ -338,9 +411,13 @@ def norm_cut(S, T, graph):
     ###TODO
     pass
     cut_val = cut(S,T,graph)
+    #print(cut_val)
     vol_S = volume(S,graph)
+    #print(vol_S)
     vol_T = volume(T,graph)
+    #print(vol_T)
     NCV =  (cut_val/vol_S) + (cut_val/vol_T)
+    #print(NCV)
     return NCV
 
 
@@ -553,6 +630,7 @@ def get_subgraph(graph, min_degree):
         if len(graph[node]) >= min_degree:
             node_with_degree.append(node)
     ga=graph.subgraph(node_with_degree)
+    #print(ga.nodes())
     return ga
 
 
@@ -577,6 +655,7 @@ def score_max_depths(graph, max_depths):
     pass
 
     final_list = []
+    #i = 1
     for i in max_depths:
         components = partition_girvan_newman(graph, i)
         final_list.append((i, norm_cut(components[0].nodes(),components[1].nodes(),graph)))
@@ -584,76 +663,6 @@ def score_max_depths(graph, max_depths):
     return final_list
 
 
-def bottom_up(root, node2distances, node2num_paths, node2parents):
-    """
-    Compute the final step of the Girvan-Newman algorithm.
-    See p 352 From your text:
-    https://github.com/iit-cs579/main/blob/master/read/lru-10.pdf
-        The third and final step is to calculate for each edge e the sum
-        over all nodes Y of the fraction of shortest paths from the root
-        X to Y that go through e. This calculation involves computing this
-        sum for both nodes and edges, from the bottom. Each node other
-        than the root is given a credit of 1, representing the shortest
-        path to that node. This credit may be divided among nodes and
-        edges above, since there could be several different shortest paths
-        to the node. The rules for the calculation are as follows: ...
-
-    Params:
-      root.............The root node in the search graph (a string). We are computing
-                       shortest paths from this node to all others.
-      node2distances...dict from each node to the length of the shortest path from
-                       the root node
-      node2num_paths...dict from each node to the number of shortest paths from the
-                       root node that pass through this node.
-      node2parents.....dict from each node to the list of its parents in the search
-                       tree
-    Returns:
-      A dict mapping edges to credit value. Each key is a tuple of two strings
-      representing an edge (e.g., ('A', 'B')). Make sure each of these tuples
-      are sorted alphabetically (so, it's ('A', 'B'), not ('B', 'A')).
-
-      Any edges excluded from the results in bfs should also be exluded here.
-
-    >>> node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 5)
-    >>> result = bottom_up('E', node2distances, node2num_paths, node2parents)
-    >>> sorted(result.items())
-    [(('A', 'B'), 1.0), (('B', 'C'), 1.0), (('B', 'D'), 3.0), (('D', 'E'), 4.5), (('D', 'G'), 0.5), (('E', 'F'), 1.5), (('F', 'G'), 0.5)]
-    """
-    ###TODO
-    pass
-    credit = {}
-    edge_betweenness = {}
-    sorted_node2distances = sorted(node2distances.items(), key=lambda x:x[1], reverse = True)
-    #print(sorted_node2distances)
-    for k,v in sorted_node2distances:
-        credit[k] = 1
-    credit[root] = 0
-    #print(credit)
-
-    for k,v in sorted_node2distances:
-        if node2num_paths[k] == 1 and k!=root:
-            #print(node2num_paths[k],k, node2parents[k])
-            #print(credit[k], credit[node2parents[k][0]])
-            credit[node2parents[k][0]] = credit[node2parents[k][0]] + credit[k]
-            if k > node2parents[k][0]:
-                edges = [node2parents[k][0],k]
-            else:
-                edges = [k,node2parents[k][0]]
-            edge_betweenness[(edges[0],edges[1])] = credit[k]
-        elif node2num_paths[k] > 1 and k!=root:
-            credit[k] = credit[k]/node2num_paths[k]
-            for parent in node2parents[k]:
-                credit[parent] = credit[parent] + (credit[k] * node2num_paths[parent])
-                if k > parent:
-                    edges = [parent,k]
-                else:
-                    edges = [k,parent]
-                edge_betweenness[(edges[0],edges[1])] = credit[k]* node2num_paths[parent]
-
-    #print(credit)
-    #print(sorted(edge_betweenness.items()))
-    #print(edge_betweenness)
-    return edge_betweenness
 
 
 
@@ -669,21 +678,20 @@ def main():
     subgraph = get_subgraph(graph, 2)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
-    #node2distances, node2num_paths, node2parents = bfs(example_graph(), 'G', 5)
-    #result = bottom_up('G', node2distances, node2num_paths, node2parents)
-    #print('norm_cut scores by max_depth:')
-    #print(score_max_depths(subgraph, range(1,5)))
-    clusters = partition_girvan_newman(subgraph, 5)
+
+    print('norm_cut scores by max_depth:')
+    print(score_max_depths(subgraph, range(1,5)))
+    clusters = partition_girvan_newman(subgraph, 3)
     print('first partition: cluster 1 has %d nodes and cluster 2 has %d nodes' %
           (clusters[0].order(), clusters[1].order()))
     print('cluster 2 nodes:')
     print(clusters[1].nodes())
-    """
-    test_node = 'D'
-    train_graph = make_training_graph(subgraph, test_node, 3)
+    test_node = 'Bill Gates'
+    train_graph = make_training_graph(subgraph, test_node, 5)
     print('train_graph has %d nodes and %d edges' %
           (train_graph.order(), train_graph.number_of_edges()))
 
+"""
     jaccard_scores = jaccard(train_graph, test_node, 5)
     print('\ntop jaccard scores for Bill Gates:')
     print(jaccard_scores)
@@ -694,8 +702,8 @@ def main():
     print('\ntop path scores for Bill Gates for beta=.1:')
     print(path_scores)
     print('path accuracy for beta .1=%g' %
-        evaluate([x[0] for x in path_scores], subgraph))
-    """
+          evaluate([x[0] for x in path_scores], subgraph))
+          """
 
 
 if __name__ == '__main__':
