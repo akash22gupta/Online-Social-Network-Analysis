@@ -27,9 +27,9 @@ def example_graph():
     Do not modify.
     """
     g = nx.Graph()
-    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
+    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')])
-    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
+    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E'), ('B', 'C'), ('B', 'F'), ('C', 'F'), ('D', 'G'), ('D', 'H'), ('E', 'H'), ('F', 'I'), ('G', 'I'), ('G', 'J'), ('H', 'J'), ('I', 'K'), ('J', 'K')])
     return g
 
@@ -123,9 +123,9 @@ def bfs(graph, root, max_depth):
 
 
 
-    print(sorted(node2distances.items()))
-    print(sorted(node2num_paths.items()))
-    print(sorted(node2parents.items()))
+    #print(sorted(node2distances.items()))
+    #print(sorted(node2num_paths.items()))
+    #print(sorted(node2parents.items()))
 
     return node2distances, node2num_paths, node2parents
 
@@ -176,19 +176,17 @@ def approximate_betweenness(graph, max_depth):
     ###TODO
     pass
 
-    nodes = []
-    betweenness = defaultdict(lambda:0.0)
+    betweenness = defaultdict(int)
     nodes = graph.nodes()
     for node in nodes:
         node2distances,node2num_paths,node2parents=bfs(graph,node,max_depth)
         result = bottom_up(node, node2distances, node2num_paths, node2parents)
-        result = sorted(result)
         for k in result:
-            betweenness[k] = betweenness[k] + result[k]
+            betweenness[k] += result[k]
     for k in betweenness:
         betweenness[k] = betweenness[k]/2
+    print(sorted(betweenness.items()))
     return betweenness
-
 
 
 def is_approximation_always_right():
@@ -605,13 +603,13 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
     ###TODO
     pass
     credit = {}
-    edge_betweenness={}
+    edge_betweenness = {}
     sorted_node2distances = sorted(node2distances.items(), key=lambda x:x[1], reverse = True)
-    print(sorted_node2distances)
+    #print(sorted_node2distances)
     for k,v in sorted_node2distances:
         credit[k] = 1
     credit[root] = 0
-    print(credit)
+    #print(credit)
 
     for k,v in sorted_node2distances:
         if node2num_paths[k] == 1 and k!=root:
@@ -627,15 +625,16 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
             credit[k] = credit[k]/node2num_paths[k]
             for parent in node2parents[k]:
                 credit[parent] = credit[parent] + (credit[k] * node2num_paths[parent])
-                if k > node2parents[k][0]:
+                if k > parent:
                     edges = [parent,k]
                 else:
                     edges = [k,parent]
                 edge_betweenness[(edges[0],edges[1])] = credit[k]* node2num_paths[parent]
 
-    print(credit)
-    print(sorted(edge_betweenness.items()))
-
+    #print(credit)
+    #print(sorted(edge_betweenness.items()))
+    #print(edge_betweenness)
+    return(edge_betweenness)
 
 
 
@@ -651,9 +650,9 @@ def main():
     subgraph = get_subgraph(graph, 5)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
-    node2distances, node2num_paths, node2parents = bfs(example_graph(), 'D', 5)
-    result = bottom_up('D', node2distances, node2num_paths, node2parents)
-
+    #node2distances, node2num_paths, node2parents = bfs(example_graph(), 'G', 5)
+    #result = bottom_up('G', node2distances, node2num_paths, node2parents)
+    approximate_betweenness(graph,10)
     """
     print('norm_cut scores by max_depth:')
     print(score_max_depths(subgraph, range(1,5)))
