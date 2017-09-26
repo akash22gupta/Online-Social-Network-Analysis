@@ -27,8 +27,8 @@ def example_graph():
     Do not modify.
     """
     g = nx.Graph()
-    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
-    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')])
+    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
+    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E'), ('B', 'C'), ('B', 'F'), ('C', 'F'), ('D', 'G'), ('D', 'H'), ('E', 'H'), ('F', 'I'), ('G', 'I'), ('G', 'J'), ('H', 'J'), ('I', 'K'), ('J', 'K')])
     return g
@@ -185,7 +185,7 @@ def approximate_betweenness(graph, max_depth):
             betweenness[k] += result[k]
     for k in betweenness:
         betweenness[k] = betweenness[k]/2
-    print(sorted(betweenness.items()))
+    #print(sorted(betweenness.items()))
     return betweenness
 
 
@@ -244,6 +244,25 @@ def partition_girvan_newman(graph, max_depth):
     ###TODO
     pass
 
+    new_graph = graph.copy()
+
+    if new_graph.order() == 1:
+        return [new_graph.nodes()]
+
+    approx_betweenness = approximate_betweenness(new_graph, max_depth)
+    components = [c for c in nx.connected_component_subgraphs(new_graph)]
+
+    def find_best_edge(G0):
+        return sorted(approx_betweenness.items(), key=lambda x: x[1], reverse=True)[0][0]
+
+    while len(components) == 1:
+        edge_to_remove = find_best_edge(new_graph)
+        new_graph.remove_edge(*edge_to_remove)
+        del approx_betweenness[edge_to_remove]
+        components = [c for c in nx.connected_component_subgraphs(new_graph)]
+
+    result = [components[1],components[0]]
+    return result
 
 
 
@@ -634,7 +653,7 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
     #print(credit)
     #print(sorted(edge_betweenness.items()))
     #print(edge_betweenness)
-    return(edge_betweenness)
+    return edge_betweenness
 
 
 
@@ -644,24 +663,22 @@ def main():
     FYI: This takes ~10-15 seconds to run on my laptop.
     """
     download_data()
-    graph = example_graph()
+    graph = read_graph()
     print('graph has %d nodes and %d edges' %
           (graph.order(), graph.number_of_edges()))
-    subgraph = get_subgraph(graph, 5)
+    subgraph = get_subgraph(graph, 2)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
     #node2distances, node2num_paths, node2parents = bfs(example_graph(), 'G', 5)
     #result = bottom_up('G', node2distances, node2num_paths, node2parents)
-    approximate_betweenness(graph,10)
-    """
-    print('norm_cut scores by max_depth:')
-    print(score_max_depths(subgraph, range(1,5)))
-    clusters = partition_girvan_newman(subgraph, 3)
+    #print('norm_cut scores by max_depth:')
+    #print(score_max_depths(subgraph, range(1,5)))
+    clusters = partition_girvan_newman(subgraph, 5)
     print('first partition: cluster 1 has %d nodes and cluster 2 has %d nodes' %
           (clusters[0].order(), clusters[1].order()))
     print('cluster 2 nodes:')
     print(clusters[1].nodes())
-
+    """
     test_node = 'D'
     train_graph = make_training_graph(subgraph, test_node, 3)
     print('train_graph has %d nodes and %d edges' %
