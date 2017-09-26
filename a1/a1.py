@@ -27,9 +27,9 @@ def example_graph():
     Do not modify.
     """
     g = nx.Graph()
-    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
+    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')])
-    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
+    g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
     #g.add_edges_from([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E'), ('B', 'C'), ('B', 'F'), ('C', 'F'), ('D', 'G'), ('D', 'H'), ('E', 'H'), ('F', 'I'), ('G', 'I'), ('G', 'J'), ('H', 'J'), ('I', 'K'), ('J', 'K')])
     return g
 
@@ -631,7 +631,7 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
                     edges = [parent,k]
                 else:
                     edges = [k,parent]
-                edge_betweenness[(edges[0],edges[1])] = credit[k]
+                edge_betweenness[(edges[0],edges[1])] = credit[k]* node2num_paths[parent]
 
     print(credit)
     print(sorted(edge_betweenness.items()))
@@ -651,8 +651,8 @@ def main():
     subgraph = get_subgraph(graph, 5)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
-    node2distances, node2num_paths, node2parents = bfs(example_graph(), 'E', 5)
-    result = bottom_up('E', node2distances, node2num_paths, node2parents)
+    node2distances, node2num_paths, node2parents = bfs(example_graph(), 'D', 5)
+    result = bottom_up('D', node2distances, node2num_paths, node2parents)
 
     """
     print('norm_cut scores by max_depth:')
