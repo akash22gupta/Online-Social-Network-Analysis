@@ -28,9 +28,6 @@ def example_graph():
     """
     g = nx.Graph()
     g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C'), ('B', 'D'), ('D', 'E'), ('D', 'F'), ('D', 'G'), ('E', 'F'), ('G', 'F')])
-    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('D', 'F'), ('E', 'G'), ('F', 'G')])
-    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('D', 'E'), ('B','E'),('D', 'F'), ('E', 'G'), ('D', 'G')])
-    #g.add_edges_from([('A', 'B'), ('A', 'C'), ('A', 'D'), ('A', 'E'), ('B', 'C'), ('B', 'F'), ('C', 'F'), ('D', 'G'), ('D', 'H'), ('E', 'H'), ('F', 'I'), ('G', 'I'), ('G', 'J'), ('H', 'J'), ('I', 'K'), ('J', 'K')])
     return g
 
 
@@ -322,11 +319,8 @@ def partition_girvan_newman(graph, max_depth):
     approx_betweenness = approximate_betweenness(new_graph, max_depth)
     components = [c for c in nx.connected_component_subgraphs(new_graph)]
 
-    def find_best_edge(G0):
-        return sorted(approx_betweenness.items(), key=lambda x: x[1], reverse=True)[0][0]
-
     while len(components) == 1:
-        edge_to_remove = find_best_edge(new_graph)
+        edge_to_remove = sorted(approx_betweenness.items(), key=lambda x: (-x[1],x[0][0],x[0][1]))[0][0]
         new_graph.remove_edge(*edge_to_remove)
         del approx_betweenness[edge_to_remove]
         components = [c for c in nx.connected_component_subgraphs(new_graph)]
@@ -334,6 +328,35 @@ def partition_girvan_newman(graph, max_depth):
     result = [components[1],components[0]]
     return result
 
+
+
+
+def get_subgraph(graph, min_degree):
+    """Return a subgraph containing nodes whose degree is
+    greater than or equal to min_degree.
+    We'll use this in the main method to prune the original graph.
+
+    Params:
+      graph........a networkx graph
+      min_degree...degree threshold
+    Returns:
+      a networkx graph, filtered as defined above.
+
+    >>> subgraph = get_subgraph(example_graph(), 3)
+    >>> sorted(subgraph.nodes())
+    ['B', 'D', 'F']
+    >>> len(subgraph.edges())
+    2
+    """
+    ###TODO
+    pass
+    node_with_degree = []
+    for node in graph:
+        if len(graph[node]) >= min_degree:
+            node_with_degree.append(node)
+    ga=graph.subgraph(node_with_degree)
+    #print(ga.nodes())
+    return ga
 
 
 
@@ -420,6 +443,35 @@ def norm_cut(S, T, graph):
     #print(NCV)
     return NCV
 
+
+
+def score_max_depths(graph, max_depths):
+    """
+    In order to assess the quality of the approximate partitioning method
+    we've developed, we will run it with different values for max_depth
+    and see how it affects the norm_cut score of the resulting partitions.
+    Recall that smaller norm_cut scores correspond to better partitions.
+
+    Params:
+      graph........a networkx Graph
+      max_depths...a list of ints for the max_depth values to be passed
+                   to calls to partition_girvan_newman
+
+    Returns:
+      A list of (int, float) tuples representing the max_depth and the
+      norm_cut value obtained by the partitions returned by
+      partition_girvan_newman. See Log.txt for an example.
+    """
+    ###TODO
+    pass
+
+    final_list = []
+    #i = 1
+    for i in max_depths:
+        components = partition_girvan_newman(graph, i)
+        final_list.append((i, norm_cut(components[0].nodes(),components[1].nodes(),graph)))
+
+    return final_list
 
 
 ## Link prediction
@@ -605,6 +657,8 @@ def evaluate(predicted_edges, graph):
 
 
 
+
+
 """
 Next, we'll download a real dataset to see how our algorithm performs.
 """
@@ -622,68 +676,6 @@ def read_graph():
       A networkx undirected graph.
     """
     return nx.read_edgelist('edges.txt.gz', delimiter='\t')
-
-
-
-def get_subgraph(graph, min_degree):
-    """Return a subgraph containing nodes whose degree is
-    greater than or equal to min_degree.
-    We'll use this in the main method to prune the original graph.
-
-    Params:
-      graph........a networkx graph
-      min_degree...degree threshold
-    Returns:
-      a networkx graph, filtered as defined above.
-
-    >>> subgraph = get_subgraph(example_graph(), 3)
-    >>> sorted(subgraph.nodes())
-    ['B', 'D', 'F']
-    >>> len(subgraph.edges())
-    2
-    """
-    ###TODO
-    pass
-    node_with_degree = []
-    for node in graph:
-        if len(graph[node]) >= min_degree:
-            node_with_degree.append(node)
-    ga=graph.subgraph(node_with_degree)
-    #print(ga.nodes())
-    return ga
-
-
-def score_max_depths(graph, max_depths):
-    """
-    In order to assess the quality of the approximate partitioning method
-    we've developed, we will run it with different values for max_depth
-    and see how it affects the norm_cut score of the resulting partitions.
-    Recall that smaller norm_cut scores correspond to better partitions.
-
-    Params:
-      graph........a networkx Graph
-      max_depths...a list of ints for the max_depth values to be passed
-                   to calls to partition_girvan_newman
-
-    Returns:
-      A list of (int, float) tuples representing the max_depth and the
-      norm_cut value obtained by the partitions returned by
-      partition_girvan_newman. See Log.txt for an example.
-    """
-    ###TODO
-    pass
-
-    final_list = []
-    #i = 1
-    for i in max_depths:
-        components = partition_girvan_newman(graph, i)
-        final_list.append((i, norm_cut(components[0].nodes(),components[1].nodes(),graph)))
-
-    return final_list
-
-
-
-
 
 
 def main():
@@ -716,6 +708,7 @@ def main():
     print(jaccard_scores)
     print('jaccard accuracy=%g' %
           evaluate([x[0] for x in jaccard_scores], subgraph))
+
     path_scores = path_score(train_graph, test_node, k=5, beta=.1)
     print('\ntop path scores for Bill Gates for beta=.1:')
     print(path_scores)
