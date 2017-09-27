@@ -201,7 +201,7 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
                 edges = [node2parents[k][0],k]
             else:
                 edges = [k,node2parents[k][0]]
-            edge_betweenness[(edges[0],edges[1])] = credit[k]
+            edge_betweenness[(edges[0],edges[1])] = 1.*credit[k]
         elif node2num_paths[k] > 1 and k!=root:
             credit[k] = credit[k]/node2num_paths[k]
             for parent in node2parents[k]:
@@ -210,7 +210,7 @@ def bottom_up(root, node2distances, node2num_paths, node2parents):
                     edges = [parent,k]
                 else:
                     edges = [k,parent]
-                edge_betweenness[(edges[0],edges[1])] = credit[k]* node2num_paths[parent]
+                edge_betweenness[(edges[0],edges[1])] = 1.*credit[k]* node2num_paths[parent]
 
     #print(credit)
     #print(sorted(edge_betweenness.items()))
