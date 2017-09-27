@@ -564,9 +564,10 @@ def path_score(graph, root, k, beta):
 
     node2distances,node2num_paths,node2parents=bfs(graph,root,math.inf)
     scores = []
+    neighbors = set(graph.neighbors(root))
     for n in graph.nodes():
         edges = graph.edges(root,n)
-        if n !=root and not graph.has_edge(root, n):
+        if n !=root and n not in neighbors:
             scores.append(((root,n), (beta ** node2distances[n] ) * (node2num_paths[n])))
     sorted_score = sorted(scores, key=lambda x: (-x[1],x[0][1]))
     return(sorted_score[:k])
