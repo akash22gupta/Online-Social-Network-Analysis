@@ -507,7 +507,6 @@ def jaccard(graph, node, k):
             neighbors2 = set(graph.neighbors(n))
             scores.append(((node,n), len(neighbors & neighbors2) / len(neighbors | neighbors2)))
     sorted_score = sorted(scores, key=lambda x: (-x[1],x[0][1]))
-    #print(sorted_score)
     # for i in range(k):
     #     j_score[(node,sorted_score[i-1][0])] = sorted_score[i-1][1]
     # print(len(j_score))
