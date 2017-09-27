@@ -499,6 +499,19 @@ def jaccard(graph, node, k):
     """
     ###TODO
     pass
+    neighbors = set(graph.neighbors(node))
+    j_score = {}
+    scores = []
+    for n in graph.nodes():
+        if n not in neighbors and n !=node:
+            neighbors2 = set(graph.neighbors(n))
+            scores.append(((node,n), len(neighbors & neighbors2) / len(neighbors | neighbors2)))
+    sorted_score = sorted(scores, key=lambda x: (-x[1],x[0][1]))
+    #print(sorted_score)
+    # for i in range(k):
+    #     j_score[(node,sorted_score[i-1][0])] = sorted_score[i-1][1]
+    # print(len(j_score))
+    return(sorted_score[:k])
 
 
 
@@ -678,7 +691,6 @@ def main():
     subgraph = get_subgraph(graph, 2)
     print('subgraph has %d nodes and %d edges' %
           (subgraph.order(), subgraph.number_of_edges()))
-
     print('norm_cut scores by max_depth:')
     print(score_max_depths(subgraph, range(1,5)))
     clusters = partition_girvan_newman(subgraph, 3)
@@ -686,25 +698,25 @@ def main():
           (clusters[0].order(), clusters[1].order()))
     print('cluster 2 nodes:')
     print(clusters[1].nodes())
+
     test_node = 'Bill Gates'
     train_graph = make_training_graph(subgraph, test_node, 5)
     print('train_graph has %d nodes and %d edges' %
           (train_graph.order(), train_graph.number_of_edges()))
 
-"""
+
     jaccard_scores = jaccard(train_graph, test_node, 5)
     print('\ntop jaccard scores for Bill Gates:')
     print(jaccard_scores)
     print('jaccard accuracy=%g' %
           evaluate([x[0] for x in jaccard_scores], subgraph))
-
+    """
     path_scores = path_score(train_graph, test_node, k=5, beta=.1)
     print('\ntop path scores for Bill Gates for beta=.1:')
     print(path_scores)
     print('path accuracy for beta .1=%g' %
           evaluate([x[0] for x in path_scores], subgraph))
-          """
-
+    """
 
 if __name__ == '__main__':
     main()
