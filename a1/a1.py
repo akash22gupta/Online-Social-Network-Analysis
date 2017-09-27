@@ -355,7 +355,6 @@ def get_subgraph(graph, min_degree):
         if len(graph[node]) >= min_degree:
             node_with_degree.append(node)
     ga=graph.subgraph(node_with_degree)
-    #print(ga.nodes())
     return ga
 
 
