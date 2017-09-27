@@ -563,7 +563,13 @@ def path_score(graph, root, k, beta):
     pass
 
     node2distances,node2num_paths,node2parents=bfs(graph,root,math.inf)
-
+    scores = []
+    for n in graph.nodes():
+        edges = graph.edges(root,n)
+        if n !=root and not graph.has_edge(root, n):
+            scores.append(((root,n), (beta ** node2distances[n] ) * (node2num_paths[n])))
+    sorted_score = sorted(scores, key=lambda x: (-x[1],x[0][1]))
+    return(sorted_score[:k])
 
 
 
@@ -709,13 +715,12 @@ def main():
     print(jaccard_scores)
     print('jaccard accuracy=%g' %
           evaluate([x[0] for x in jaccard_scores], subgraph))
-    """
     path_scores = path_score(train_graph, test_node, k=5, beta=.1)
     print('\ntop path scores for Bill Gates for beta=.1:')
     print(path_scores)
     print('path accuracy for beta .1=%g' %
           evaluate([x[0] for x in path_scores], subgraph))
-    """
+
 
 if __name__ == '__main__':
     main()
