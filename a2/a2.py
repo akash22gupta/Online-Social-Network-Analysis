@@ -87,10 +87,10 @@ def tokenize(doc, keep_internal_punct=False):
       a numpy array containing the resulting tokens.
 
     >>> tokenize(" Hi there! Isn't this fun?", keep_internal_punct=False)
-    array(['hi', 'there', 'isn', 't', 'this', 'fun'], 
+    array(['hi', 'there', 'isn', 't', 'this', 'fun'],
           dtype='<U5')
     >>> tokenize("Hi there! Isn't this fun? ", keep_internal_punct=True)
-    array(['hi', 'there', "isn't", 'this', 'fun'], 
+    array(['hi', 'there', "isn't", 'this', 'fun'],
           dtype='<U5')
     """
     ###TODO
@@ -116,7 +116,10 @@ def token_features(tokens, feats):
     [('token=hi', 2), ('token=there', 1)]
     """
     ###TODO
-    pass
+    count = Counter(tokens)
+    for token in count:
+        feats["token=" + token] = count[token]
+    
 
 
 def token_pair_features(tokens, feats, k=3):
