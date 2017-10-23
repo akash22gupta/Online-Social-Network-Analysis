@@ -94,6 +94,15 @@ def tokenize(doc, keep_internal_punct=False):
           dtype='<U5')
     """
     ###TODO
+
+    doc = doc.lower()
+    if(keep_internal_punct):
+        tokens = re.findall(r"[\w']+|[.,;]", doc, re.UNICODE)
+
+    else:
+        tokens = re.sub('\W+', ' ', doc).split()
+
+    return np.array(tokens,dtype='<U5')
     pass
 
 
@@ -119,7 +128,7 @@ def token_features(tokens, feats):
     count = Counter(tokens)
     for token in count:
         feats["token=" + token] = count[token]
-    
+
 
 
 def token_pair_features(tokens, feats, k=3):
