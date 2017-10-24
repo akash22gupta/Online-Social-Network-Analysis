@@ -158,6 +158,26 @@ def token_pair_features(tokens, feats, k=3):
     [('token_pair=a__b', 1), ('token_pair=a__c', 1), ('token_pair=b__c', 2), ('token_pair=b__d', 1), ('token_pair=c__d', 1)]
     """
     ###TODO
+
+    token_pair =[]
+    temp_list = []
+    length = len(tokens)
+    i=0
+    while i<=length-1 and i+(k-1)<=length-1:
+        j=i
+        l=j+(k-1)
+        while j<=l:
+            temp_list.append(tokens[j])
+            temp = list(combinations(temp_list,2))
+            for pair in temp:
+                token_pair.append(pair[0]+"_"+pair[1])
+            j+=1
+        temp_list = []
+        i+=1
+    count = Counter(token_pair)
+    for token in count:
+        feats["token_pair=" + token] = count[token]
+
     pass
 
 
