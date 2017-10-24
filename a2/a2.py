@@ -209,7 +209,11 @@ def lexicon_features(tokens, feats):
         if(token.lower() in neg_words):
             feats['neg_words']+= 1
         elif(token.lower() in pos_words):
-            feats['pos_words']+= 1    
+            feats['pos_words']+= 1
+    if(feats['neg_words'] == 0):
+        feats['neg_words'] = 0
+    if(feats['pos_words'] == 0):
+        feats['pos_words'] = 0
     pass
 
 
@@ -230,6 +234,10 @@ def featurize(tokens, feature_fns):
     [('neg_words', 0), ('pos_words', 2), ('token=LOVE', 1), ('token=great', 1), ('token=i', 1), ('token=movie', 1), ('token=this', 1)]
     """
     ###TODO
+    feats = defaultdict(lambda:0)
+    for function in feature_fns:
+        function(tokens,feats)
+    return sorted(feats.items())
     pass
 
 
