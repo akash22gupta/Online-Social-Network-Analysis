@@ -204,6 +204,12 @@ def lexicon_features(tokens, feats):
     [('neg_words', 1), ('pos_words', 2)]
     """
     ###TODO
+
+    for token in tokens:
+        if(token.lower() in neg_words):
+            feats['neg_words']+= 1
+        elif(token.lower() in pos_words):
+            feats['pos_words']+= 1    
     pass
 
 
