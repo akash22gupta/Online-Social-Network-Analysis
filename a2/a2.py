@@ -320,7 +320,7 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
                     key.append(token_total[k])
         x = csr_matrix((key,(row,column)), shape=(len(tokens_list), len(vocab)))
         return x,vocab
-        
+
     pass
 
 
@@ -403,6 +403,17 @@ def plot_sorted_accuracies(results):
     Save to "accuracies.png".
     """
     ###TODO
+
+    accuracy =[]
+    for i in results:
+        accuracy.append(i['accuracy'])
+    accuracy = sorted(accuracy)
+    x = np.arrange(len(accuracy))
+    y = accuracy
+    plt.plot(x,y)
+    plt.xlabel("setting")
+    plt.ylabel("accuracy")
+    plt.savefig("accuracies.png")
     pass
 
 
