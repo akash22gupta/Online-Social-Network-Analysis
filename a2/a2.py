@@ -412,7 +412,7 @@ def eval_all_combinations(docs, labels, punct_vals,
             for min_freq in min_freqs:
                 X, vocab = vectorize(tokens_list, feature, min_freq)
                 accuracy = cross_validation_accuracy(LogisticRegression(), X, labels, 5)
-                final_list.append({'punct': true_false, 'features': feature, 'accuracy': accuracy, 'min_freq': min_freq})
+                final_list.append({'features': feature, 'punct': true_false, 'accuracy': accuracy, 'min_freq': min_freq})
 
     return sorted(final_list, key = lambda x: (-x['accuracy'], -x['min_freq']))
     pass
@@ -569,12 +569,12 @@ def main():
                                     feature_fns,
                                     [2,5,10])
     # Print information about these results.
-    """
     best_result = results[0]
     worst_result = results[-1]
     print('best cross-validation result:\n%s' % str(best_result))
     print('worst cross-validation result:\n%s' % str(worst_result))
     plot_sorted_accuracies(results)
+    """
     print('\nMean Accuracies per Setting:')
     print('\n'.join(['%s: %.5f' % (s,v) for v,s in mean_accuracy_per_setting(results)]))
 
