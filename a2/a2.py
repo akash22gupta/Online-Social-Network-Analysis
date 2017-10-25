@@ -295,9 +295,9 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
                 token_count[k].append(v)
             i+=1
             #print(token_count)
-            for k,v in sorted(token_count.items()):
-                if len(v) >= min_freq:
-                    main_vocab[k] = v
+        for k,v in sorted(token_count.items()):
+            if len(v) >= min_freq:
+                main_vocab[k] = v
             #print(sorted(main_vocab))
 
         value = 0
