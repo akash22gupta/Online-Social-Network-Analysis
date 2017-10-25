@@ -274,7 +274,6 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
     [('token=great', 0), ('token=horrible', 1), ('token=isn', 2), ('token=movie', 3), ('token=t', 4), ('token=this', 5)]
     """
     ###TODO
-    i=0
     feats=[]
     row=[]
     column=[]
@@ -282,42 +281,54 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
     token_total=defaultdict(dict)
     main_vocab = defaultdict(dict)
     token_count = defaultdict(list)
-    doc_map = defaultdict(dict)
-    for document in tokens_list:
-        #print (document)
-        feat_urize = dict(featurize(document, feature_fns))
-        token_total.update(feat_urize)
-        feat_urize = dict.fromkeys(feat_urize,i)
-        for k,v in feat_urize.items():
-            token_count[k].append(v)
-        i+=1
-    #print(token_count)
-    for k,v in sorted(token_count.items()):
-        if len(v) >= min_freq:
-              main_vocab[k] = v
-    #print(main_vocab)
-
-    value = 0
-    for k in main_vocab:
-        main_vocab[k] = value
-        value+=1
-    #print(main_vocab)
-    #print(feat_urize)
     if vocab == None:
-        for k in main_vocab:
-            for v in token_count[k]:
+        row=[]
+        column=[]
+        key=[]
+        i=0
+        for document in tokens_list:
+            #print (document)
+            feat_urize = dict(featurize(document, feature_fns))
+            token_total.update(feat_urize)
+            feat_urize = dict.fromkeys(feat_urize,i)
+            for k,v in feat_urize.items():
+                token_count[k].append(v)
+            i+=1
+            #print(token_count)
+            for k,v in sorted(token_count.items()):
+                if len(v) >= min_freq:
+                    main_vocab[k] = v
+            #print(sorted(main_vocab))
+
+        value = 0
+        for k in sorted(main_vocab):
+            main_vocab[k] = value
+            value+=1
+        #print(sorted(main_vocab.items()))
+        #print(feat_urize)
+        #print(sorted(token_total.items()))
+        print(sorted(token_count.items()))
+
+        for k in sorted(main_vocab):
+            for v in sorted(token_count[k]):
                 row.append(v)
                 column.append(main_vocab[k])
                 key.append(token_total[k])
         x = csr_matrix((key,(row,column)), shape=(len(tokens_list), len(main_vocab)))
         return x,main_vocab
     else:
-        for k in main_vocab:
-            for v in token_count[k]:
-                if k in vocab:
-                    row.append(v)
-                    column.append(vocab[k])
-                    key.append(token_total[k])
+        j=0
+        row=[]
+        column=[]
+        key=[]
+        for document in tokens_list:
+            feat_urize = dict(featurize(document, feature_fns))
+            for feature in feat_urize:
+                if feature in vocab:
+                    row.append(j)
+                    column.append(vocab[feature])
+                    key.append(feat_urize[feature])
+            j+=1
         x = csr_matrix((key,(row,column)), shape=(len(tokens_list), len(vocab)))
         return x,vocab
 
@@ -351,6 +362,7 @@ def cross_validation_accuracy(clf, X, labels, k):
       over each fold of cross-validation.
     """
     ###TODO
+
     kf = KFold(len(labels), k)
     accuracies = []
 
@@ -411,6 +423,7 @@ def eval_all_combinations(docs, labels, punct_vals,
         for feature in all_feature_combinations:
             for min_freq in min_freqs:
                 X, vocab = vectorize(tokens_list, feature, min_freq)
+                print("Sparse Matrix Shape:", X.shape)
                 accuracy = cross_validation_accuracy(LogisticRegression(), X, labels, 5)
                 final_list.append({'features': feature, 'punct': true_false, 'accuracy': accuracy, 'min_freq': min_freq})
 
@@ -430,7 +443,7 @@ def plot_sorted_accuracies(results):
     for i in results:
         accuracy.append(i['accuracy'])
     accuracy = sorted(accuracy)
-    x = np.arrange(len(accuracy))
+    x = (len(accuracy))
     y = accuracy
     plt.plot(x,y)
     plt.xlabel("setting")
@@ -573,8 +586,8 @@ def main():
     worst_result = results[-1]
     print('best cross-validation result:\n%s' % str(best_result))
     print('worst cross-validation result:\n%s' % str(worst_result))
-    plot_sorted_accuracies(results)
     """
+    plot_sorted_accuracies(results)
     print('\nMean Accuracies per Setting:')
     print('\n'.join(['%s: %.5f' % (s,v) for v,s in mean_accuracy_per_setting(results)]))
 
