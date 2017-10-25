@@ -356,7 +356,7 @@ def cross_validation_accuracy(clf, X, labels, k):
 
     for train_idx, test_idx in kf:
         clf.fit(X[train_idx], labels[train_idx])
-        accuracies.append(accurecy_score(labels[test_idx],clf.predict(X[test_idx])))
+        accuracies.append(accuracy_score(labels[test_idx],clf.predict(X[test_idx])))
 
     return np.mean(accuracies)
     pass
@@ -401,12 +401,20 @@ def eval_all_combinations(docs, labels, punct_vals,
       This function will take a bit longer to run (~20s for me).
     """
     ###TODO
-    all_combinations=[]
+    all_feature_combinations=[]
+    final_list = []
     for i in range(1, len(feature_fns)+1):
         combination_list = [list(combination) for combination in combinations(feature_fns,i)]
-        all_combinations.append(combination_list)
+        all_feature_combinations.extend(combination_list)
+    for true_false in punct_vals:
+        tokens_list = [tokenize(document, true_false) for document in docs]
+        for feature in all_feature_combinations:
+            for min_freq in min_freqs:
+                X, vocab = vectorize(tokens_list, feature, min_freq)
+                accuracy = cross_validation_accuracy(LogisticRegression(), X, labels, 5)
+                final_list.append({'punct': true_false, 'features': feature, 'accuracy': accuracy, 'min_freq': min_freq})
 
-
+    return sorted(final_list, key = lambda x: (-x['accuracy'], -x['min_freq']))
     pass
 
 
