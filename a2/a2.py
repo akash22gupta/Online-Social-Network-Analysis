@@ -97,12 +97,12 @@ def tokenize(doc, keep_internal_punct=False):
 
     doc = doc.lower()
     if(keep_internal_punct):
-        tokens = re.findall(r"[\w']+|[.,;]", doc, re.UNICODE)
+        tokens = re.findall(r"[[\w_][^\s]*[\w_]|[\w_]", doc)
 
     else:
         tokens = re.sub('\W+', ' ', doc).split()
 
-    return np.array(tokens,dtype='<U5')
+    return np.array(tokens)
     pass
 
 
@@ -401,6 +401,11 @@ def eval_all_combinations(docs, labels, punct_vals,
       This function will take a bit longer to run (~20s for me).
     """
     ###TODO
+    all_combinations=[]
+    for i in range(1, len(feature_fns)+1):
+        combination_list = [list(combination) for combination in combinations(feature_fns,i)]
+        all_combinations.append(combination_list)
+
 
     pass
 
