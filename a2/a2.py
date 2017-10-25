@@ -351,6 +351,14 @@ def cross_validation_accuracy(clf, X, labels, k):
       over each fold of cross-validation.
     """
     ###TODO
+    kf = KFold(len(labels), k)
+    accuracies = []
+
+    for train_idx, test_idx in kf:
+        clf.fit(X[train_idx], labels[train_idx])
+        accuracies.append(accurecy_score(labels[test_idx],clf.predict(X[test_idx])))
+
+    return np.mean(accuracies)
     pass
 
 
@@ -393,6 +401,7 @@ def eval_all_combinations(docs, labels, punct_vals,
       This function will take a bit longer to run (~20s for me).
     """
     ###TODO
+
     pass
 
 
