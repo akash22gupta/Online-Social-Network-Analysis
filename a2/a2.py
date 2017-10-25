@@ -94,7 +94,7 @@ def tokenize(doc, keep_internal_punct=False):
           dtype='<U5')
     """
     ###TODO
-
+    """
     doc = doc.lower()
     if(keep_internal_punct):
         tokens = re.findall(r"[[\w_][^\s]*[\w_]|[\w_]", doc)
@@ -104,6 +104,11 @@ def tokenize(doc, keep_internal_punct=False):
 
     return np.array(tokens)
     pass
+    """
+    if keep_internal_punct == False:
+        return np.array(re.findall('[\w_]+', doc.lower()))
+    else:
+        return np.array(re.findall('[\w_][^\s]*[\w_]|[\w_]', doc.lower()))
 
 
 def token_features(tokens, feats):
@@ -158,7 +163,6 @@ def token_pair_features(tokens, feats, k=3):
     [('token_pair=a__b', 1), ('token_pair=a__c', 1), ('token_pair=b__c', 2), ('token_pair=b__d', 1), ('token_pair=c__d', 1)]
     """
     ###TODO
-
     token_pair =[]
     temp_list = []
     length = len(tokens)
@@ -168,17 +172,18 @@ def token_pair_features(tokens, feats, k=3):
         l=j+(k-1)
         while j<=l:
             temp_list.append(tokens[j])
-            temp = list(combinations(temp_list,2))
-            for pair in temp:
-                token_pair.append(pair[0]+"_"+pair[1])
+            if(len(temp_list)==k):
+                temp = list(combinations(temp_list,2))
+                for pair in temp:
+                    token_pair.append(pair[0]+"_"+pair[1])
             j+=1
         temp_list = []
         i+=1
+
     count = Counter(token_pair)
     for token in count:
         feats["token_pair=" + token] = count[token]
 
-    pass
 
 
 neg_words = set(['bad', 'hate', 'horrible', 'worst', 'boring'])
@@ -204,7 +209,6 @@ def lexicon_features(tokens, feats):
     [('neg_words', 1), ('pos_words', 2)]
     """
     ###TODO
-
     for token in tokens:
         if(token.lower() in neg_words):
             feats['neg_words']+= 1
@@ -215,6 +219,7 @@ def lexicon_features(tokens, feats):
     if(feats['pos_words'] == 0):
         feats['pos_words'] = 0
     pass
+
 
 
 def featurize(tokens, feature_fns):
@@ -279,17 +284,17 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
     column=[]
     key=[]
     token_total=defaultdict(dict)
-    main_vocab = defaultdict(dict)
+    main_vocab={}
     token_count = defaultdict(list)
     if vocab == None:
-        row=[]
-        column=[]
-        key=[]
+        mapping=defaultdict(dict)
         i=0
         for document in tokens_list:
-            #print (document)
+            #print (i)
             feat_urize = dict(featurize(document, feature_fns))
+            #print(feat_urize)
             token_total.update(feat_urize)
+            mapping[i] = feat_urize
             feat_urize = dict.fromkeys(feat_urize,i)
             for k,v in feat_urize.items():
                 token_count[k].append(v)
@@ -307,20 +312,18 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
         #print(sorted(main_vocab.items()))
         #print(feat_urize)
         #print(sorted(token_total.items()))
-        print(sorted(token_count.items()))
+        #print(sorted(token_count.items()))
 
         for k in sorted(main_vocab):
             for v in sorted(token_count[k]):
-                row.append(v)
-                column.append(main_vocab[k])
-                key.append(token_total[k])
+                if k in mapping[v]:
+                    row.append(v)
+                    column.append(main_vocab[k])
+                    key.append(mapping[v][k])
         x = csr_matrix((key,(row,column)), shape=(len(tokens_list), len(main_vocab)))
         return x,main_vocab
     else:
         j=0
-        row=[]
-        column=[]
-        key=[]
         for document in tokens_list:
             feat_urize = dict(featurize(document, feature_fns))
             for feature in feat_urize:
@@ -333,7 +336,6 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
         return x,vocab
 
     pass
-
 
 def accuracy_score(truth, predicted):
     """ Compute accuracy of predictions.
@@ -423,7 +425,7 @@ def eval_all_combinations(docs, labels, punct_vals,
         for feature in all_feature_combinations:
             for min_freq in min_freqs:
                 X, vocab = vectorize(tokens_list, feature, min_freq)
-                print("Sparse Matrix Shape:", X.shape)
+                #print("Sparse Matrix Shape:", X.shape)
                 accuracy = cross_validation_accuracy(LogisticRegression(), X, labels, 5)
                 final_list.append({'features': feature, 'punct': true_false, 'accuracy': accuracy, 'min_freq': min_freq})
 
@@ -443,7 +445,7 @@ def plot_sorted_accuracies(results):
     for i in results:
         accuracy.append(i['accuracy'])
     accuracy = sorted(accuracy)
-    x = (len(accuracy))
+    x = np.arange((len(accuracy)))
     y = accuracy
     plt.plot(x,y)
     plt.xlabel("setting")
@@ -586,8 +588,8 @@ def main():
     worst_result = results[-1]
     print('best cross-validation result:\n%s' % str(best_result))
     print('worst cross-validation result:\n%s' % str(worst_result))
-    """
     plot_sorted_accuracies(results)
+    """
     print('\nMean Accuracies per Setting:')
     print('\n'.join(['%s: %.5f' % (s,v) for v,s in mean_accuracy_per_setting(results)]))
 
