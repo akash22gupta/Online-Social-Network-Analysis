@@ -94,7 +94,6 @@ def tokenize(doc, keep_internal_punct=False):
           dtype='<U5')
     """
     ###TODO
-    """
     doc = doc.lower()
     if(keep_internal_punct):
         tokens = re.findall(r"[[\w_][^\s]*[\w_]|[\w_]", doc)
@@ -104,11 +103,6 @@ def tokenize(doc, keep_internal_punct=False):
 
     return np.array(tokens)
     pass
-    """
-    if keep_internal_punct == False:
-        return np.array(re.findall('[\w_]+', doc.lower()))
-    else:
-        return np.array(re.findall('[\w_][^\s]*[\w_]|[\w_]', doc.lower()))
 
 
 def token_features(tokens, feats):
