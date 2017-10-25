@@ -274,6 +274,53 @@ def vectorize(tokens_list, feature_fns, min_freq, vocab=None):
     [('token=great', 0), ('token=horrible', 1), ('token=isn', 2), ('token=movie', 3), ('token=t', 4), ('token=this', 5)]
     """
     ###TODO
+    i=0
+    feats=[]
+    row=[]
+    column=[]
+    key=[]
+    token_total=defaultdict(dict)
+    main_vocab = defaultdict(dict)
+    token_count = defaultdict(list)
+    doc_map = defaultdict(dict)
+    for document in tokens_list:
+        #print (document)
+        feat_urize = dict(featurize(document, feature_fns))
+        token_total.update(feat_urize)
+        feat_urize = dict.fromkeys(feat_urize,i)
+        for k,v in feat_urize.items():
+            token_count[k].append(v)
+        i+=1
+    #print(token_count)
+    for k,v in sorted(token_count.items()):
+        if len(v) >= min_freq:
+              main_vocab[k] = v
+    #print(main_vocab)
+
+    value = 0
+    for k in main_vocab:
+        main_vocab[k] = value
+        value+=1
+    #print(main_vocab)
+    #print(feat_urize)
+    if vocab == None:
+        for k in main_vocab:
+            for v in token_count[k]:
+                row.append(v)
+                column.append(main_vocab[k])
+                key.append(token_total[k])
+        x = csr_matrix((key,(row,column)), shape=(len(tokens_list), len(main_vocab)))
+        return x,main_vocab
+    else:
+        for k in main_vocab:
+            for v in token_count[k]:
+                if k in vocab:
+                    row.append(v)
+                    column.append(vocab[k])
+                    key.append(token_total[k])
+        x = csr_matrix((key,(row,column)), shape=(len(tokens_list), len(vocab)))
+        return x,vocab
+        
     pass
 
 
@@ -489,6 +536,7 @@ def main():
                                     feature_fns,
                                     [2,5,10])
     # Print information about these results.
+    """
     best_result = results[0]
     worst_result = results[-1]
     print('best cross-validation result:\n%s' % str(best_result))
@@ -517,6 +565,7 @@ def main():
 
     print('\nTOP MISCLASSIFIED TEST DOCUMENTS:')
     print_top_misclassified(test_docs, test_labels, X_test, clf, 5)
+    """
 
 
 if __name__ == '__main__':
