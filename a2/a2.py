@@ -462,7 +462,23 @@ def mean_accuracy_per_setting(results):
       descending order of accuracy.
     """
     ###TODO
-    pass
+    set_acu= defaultdict(lambda: 0.)
+    set_freq= defaultdict(lambda: 0)
+    for result in results:
+        set_acu["punct" + "="+ str(result["punct"])] += result["accuracy"]
+        set_freq["punct" + "="+ str(result["punct"])] += 1
+        function_name = "features="
+        for function in result["features"]:
+            function_name += " " + function.__name__
+        set_acu[function_name] += result["accuracy"]
+        set_freq[function_name] += 1
+        set_acu["min_freq" + "=" + str(result["min_freq"])] += result["accuracy"]
+        set_freq["min_freq" + "=" + str(result["min_freq"])] += 1
+    for k in set_acu:
+        set_acu[k] = set_acu[k] / set_freq[k]
+
+    return[(v,k) for k,v in sorted(set_acu.items(), key = lambda x: -x[1])]
+
 
 
 def fit_best_classifier(docs, labels, best_result):
@@ -483,6 +499,20 @@ def fit_best_classifier(docs, labels, best_result):
       vocab...The dict from feature name to column index.
     """
     ###TODO
+    token_list=[]
+    punc = best_result["punct"]
+    min_freq = best_result["min_freq"]
+    feature = best_result["features"]
+    clf = LogisticRegression()
+    for document in docs:
+        token_list.append(tokenize(document,punc))
+
+    X,vocab = vectorize(token_list,feature,min_freq)
+    clf.fit(X, labels)
+
+    return clf,vocab
+
+
     pass
 
 
@@ -582,14 +612,12 @@ def main():
     worst_result = results[-1]
     print('best cross-validation result:\n%s' % str(best_result))
     print('worst cross-validation result:\n%s' % str(worst_result))
-    plot_sorted_accuracies(results)
-    """
+    #plot_sorted_accuracies(results)
     print('\nMean Accuracies per Setting:')
     print('\n'.join(['%s: %.5f' % (s,v) for v,s in mean_accuracy_per_setting(results)]))
-
     # Fit best classifier.
     clf, vocab = fit_best_classifier(docs, labels, results[0])
-
+    """
     # Print top coefficients per class.
     print('\nTOP COEFFICIENTS PER CLASS:')
     print('negative words:')
