@@ -462,6 +462,19 @@ def mean_accuracy_per_setting(results):
       descending order of accuracy.
     """
     ###TODO
+    setting_acc = []
+    temp =defaultdict(lambda: (0.0, 0))
+    for result in results:
+        temp["min_freq="+str(result["min_freq"])] = (temp["min_freq="+str(result["min_freq"])][0]+result["accuracy"],temp["min_freq="+str(result["min_freq"])][1]+1)
+        func_key = " "
+        for func in result["features"]:
+            func_key+=" "+func.__name__
+        temp["features="+func_key.strip()] = (temp["features="+func_key.strip()][0]+result["accuracy"],temp["features="+func_key.strip()][1]+1)
+        temp["punct="+ str(result["punct"])] = (temp["punct="+ str(result["punct"])][0] + result["accuracy"], temp["punct="+ str(result["punct"])][1] + 1)
+
+    for k in temp.keys():
+        setting_acc.append(((temp[k][0]/temp[k][1]),k))
+
     set_acu= defaultdict(lambda: 0.)
     set_freq= defaultdict(lambda: 0)
     for result in results:
@@ -500,12 +513,12 @@ def fit_best_classifier(docs, labels, best_result):
     """
     ###TODO
     token_list=[]
-    punc = best_result["punct"]
+    punct = best_result["punct"]
     min_freq = best_result["min_freq"]
     feature = best_result["features"]
     clf = LogisticRegression()
     for document in docs:
-        token_list.append(tokenize(document,punc))
+        token_list.append(tokenize(document,punct))
 
     X,vocab = vectorize(token_list,feature,min_freq)
     clf.fit(X, labels)
@@ -533,8 +546,39 @@ def top_coefs(clf, label, n, vocab):
       in descending order of the coefficient for the
       given class label.
     """
-    ###TODO
-    pass
+    topids1 = []
+    top_coef1 = []
+    coef1 = clf.coef_[0]
+    if label == 1:
+        topids1 = np.argsort(coef1)[::-1][:n]
+        top_coef1 = coef1[topids1]  #coefficient
+    else:
+        topids1 = np.argsort(coef1)[:n]
+        top_coef1 = coef1[topids1] * -1
+
+    top_coef_terms1 = np.array(sorted(vocab.items(), key=lambda x: x[1]))[topids1]
+
+
+    coef = clf.coef_[0]
+    #top_index = []
+    top_coef = []
+    list_coef = []
+    if label == 1:
+        top_index = np.argsort(coef)[::-1][:n]
+        #print(top_index)
+    else:
+        #print(top_index)
+        top_index = np.argsort(coef)[::1][:n]
+
+    for i in top_index:
+        for j in vocab.items():
+            if j[1]==i:
+                top_coef_word = j[0]
+        top_coef = coef[i]
+        list_coef.append((top_coef_word ,abs(top_coef)))
+
+    return list_coef
+
 
 
 def parse_test_data(best_result, vocab):
@@ -562,6 +606,18 @@ def parse_test_data(best_result, vocab):
                     each column is a feature.
     """
     ###TODO
+    test_docs, test_labels = read_data(os.path.join('data','test'))
+    punct = best_result["punct"]
+    min_freq = best_result["min_freq"]
+    feature = best_result["features"]
+    tokens_list=[]
+
+    for docuemnt in test_docs:
+        tokens_list.append(tokenize(document,punct))
+
+    X_test , vocab_new = vectorize(tokens_list, feature, min_freq, vocab)
+
+    return test_docs, test_labels, X_test
     pass
 
 
@@ -589,6 +645,7 @@ def print_top_misclassified(test_docs, test_labels, X_test, clf, n):
       Nothing; see Log.txt for example printed output.
     """
     ###TODO
+
     pass
 
 
@@ -617,14 +674,12 @@ def main():
     print('\n'.join(['%s: %.5f' % (s,v) for v,s in mean_accuracy_per_setting(results)]))
     # Fit best classifier.
     clf, vocab = fit_best_classifier(docs, labels, results[0])
-    """
     # Print top coefficients per class.
     print('\nTOP COEFFICIENTS PER CLASS:')
     print('negative words:')
     print('\n'.join(['%s: %.5f' % (t,v) for t,v in top_coefs(clf, 0, 5, vocab)]))
     print('\npositive words:')
     print('\n'.join(['%s: %.5f' % (t,v) for t,v in top_coefs(clf, 1, 5, vocab)]))
-
     # Parse test data
     test_docs, test_labels, X_test = parse_test_data(best_result, vocab)
 
@@ -632,7 +687,7 @@ def main():
     predictions = clf.predict(X_test)
     print('testing accuracy=%f' %
           accuracy_score(test_labels, predictions))
-
+    """
     print('\nTOP MISCLASSIFIED TEST DOCUMENTS:')
     print_top_misclassified(test_docs, test_labels, X_test, clf, 5)
     """
