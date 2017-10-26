@@ -434,7 +434,6 @@ def plot_sorted_accuracies(results):
     Save to "accuracies.png".
     """
     ###TODO
-
     accuracy =[]
     for i in results:
         accuracy.append(i['accuracy'])
@@ -612,7 +611,7 @@ def parse_test_data(best_result, vocab):
     feature = best_result["features"]
     tokens_list=[]
 
-    for docuemnt in test_docs:
+    for document in test_docs:
         tokens_list.append(tokenize(document,punct))
 
     X_test , vocab_new = vectorize(tokens_list, feature, min_freq, vocab)
@@ -645,6 +644,40 @@ def print_top_misclassified(test_docs, test_labels, X_test, clf, n):
       Nothing; see Log.txt for example printed output.
     """
     ###TODO
+
+    labels_predict = clf.predict(X_test)
+    labels_different = np.where(labels_predict != test_labels)[0]  #different prediction indice
+
+    predict_prob = clf.predict_proba(X_test)
+    pred_wrong = predict_prob[labels_different]
+    ids = np.argsort(np.amax(pred_wrong, axis = 1))[::-1][:n]   #first maximum n indice
+    value=clf.predict(X_test)
+    list_of_incorrect=[]
+    predict_matrix= clf.predict_proba(X_test)
+    for i in range(len(predict_matrix)):
+                   incorrect_dict={}
+                   if value[i]!=test_labels[i]:
+                    incorrect_dict.update({'docs':test_docs[i]})
+                    incorrect_dict.update({'label':test_labels[i]})
+                    incorrect_dict.update({'predicted':value[i]})
+                    list_of_incorrect.append(incorrect_dict)
+    #final_list=sorted(list_of_incorrect, key=lambda k: -k['proba'])
+    count=0
+
+
+    predict = clf.predict(X_test)
+    predict_prob = clf.predict_proba(X_test)
+
+    w_p =[]
+
+    for i in range(len(test_docs)):
+        if(predict[i] != test_labels[i]):
+            w_p.append((predict_prob[i][predict[i]],i,predict[i],test_labels[i]))
+
+    predictions = sorted(w_p, key=lambda x:-x[0])
+    for i in predictions[:n]:
+        print("\n" + "truth=" + str(i[3]) + " predicted=" + str(i[2]) + " proba=" + str(float("{0:.6f}".format(i[0]))))
+        print(test_docs[i[1]])
 
     pass
 
@@ -687,10 +720,8 @@ def main():
     predictions = clf.predict(X_test)
     print('testing accuracy=%f' %
           accuracy_score(test_labels, predictions))
-    """
     print('\nTOP MISCLASSIFIED TEST DOCUMENTS:')
     print_top_misclassified(test_docs, test_labels, X_test, clf, 5)
-    """
 
 
 if __name__ == '__main__':
