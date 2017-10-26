@@ -447,6 +447,7 @@ def plot_sorted_accuracies(results):
     pass
 
 
+
 def mean_accuracy_per_setting(results):
     """
     To determine how important each model setting is to overall accuracy,
@@ -481,7 +482,7 @@ def mean_accuracy_per_setting(results):
         set_freq["punct" + "="+ str(result["punct"])] += 1
         function_name = "features="
         for function in result["features"]:
-            function_name += " " + function.__name__
+            function_name +=" "+function.__name__
         set_acu[function_name] += result["accuracy"]
         set_freq[function_name] += 1
         set_acu["min_freq" + "=" + str(result["min_freq"])] += result["accuracy"]
@@ -702,7 +703,7 @@ def main():
     worst_result = results[-1]
     print('best cross-validation result:\n%s' % str(best_result))
     print('worst cross-validation result:\n%s' % str(worst_result))
-    #plot_sorted_accuracies(results)
+    plot_sorted_accuracies(results)
     print('\nMean Accuracies per Setting:')
     print('\n'.join(['%s: %.5f' % (s,v) for v,s in mean_accuracy_per_setting(results)]))
     # Fit best classifier.
