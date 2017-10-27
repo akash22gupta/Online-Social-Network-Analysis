@@ -169,7 +169,7 @@ def token_pair_features(tokens, feats, k=3):
             if(len(temp_list)==k):
                 temp = list(combinations(temp_list,2))
                 for pair in temp:
-                    token_pair.append(pair[0]+"_"+pair[1])
+                    token_pair.append(pair[0]+"__"+pair[1])
             j+=1
         temp_list = []
         i+=1
