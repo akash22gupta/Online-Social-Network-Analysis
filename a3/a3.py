@@ -53,6 +53,11 @@ def tokenize(movies):
     """
     ###TODO
     pass
+    token = []
+    for genre in movies['genres']:
+        token.append(tokenize_string(genre))
+    movies['tokens'] = token
+    return movies
 
 
 def featurize(movies):
