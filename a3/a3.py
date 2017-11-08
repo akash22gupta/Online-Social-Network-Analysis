@@ -59,7 +59,6 @@ def tokenize(movies):
     movies['tokens'] = token
     return movies
 
-
 def featurize(movies):
     """
     Append a new column to the movies DataFrame with header 'features'.
@@ -84,6 +83,45 @@ def featurize(movies):
     """
     ###TODO
     pass
+    matrix = []
+    all_genre = Counter()
+    vocab = {}
+    for token in movies['tokens']:
+        all_genre.update(set(token))
+    all_genres=sorted(all_genre)
+
+    for i in range(len(all_genres)):
+        vocab[all_genres[i]] = i
+
+
+    len_movies = len(movies)
+    len_vocab = len(vocab)
+    len_all_genres = len(all_genres)
+
+    for token in movies['tokens']:
+        token_count = Counter(token)
+        #print(token_count.items())
+        max_k = token_count[max(token_count.keys())]
+        #print(max_k)
+        tfidf =[]
+        token_count_len = len(token_count)
+        #print(token_count_len)
+        for all_token in token_count:
+            #print(freq)
+            tfidf.append(max_k/ max_k * math.log10(len_movies/all_genre[all_token]))
+            #print(tfidf)
+        row = [0] * token_count_len
+        col = []
+        for token in token_count:
+            #print(token)
+            col.append(vocab[token])
+            #print(col)
+        matrix.append(csr_matrix((tfidf, (row, col)), shape=(1, len_all_genres)))
+    movies['features'] = matrix
+    #print(vocab)
+    #print(movies)
+    return movies, vocab
+
 
 
 def train_test_split(ratings):
@@ -109,6 +147,9 @@ def cosine_sim(a, b):
     """
     ###TODO
     pass
+    A = a.toarray()[0]
+    b = np.array(b.toarray())
+    print(A)
 
 
 def make_predictions(movies, ratings_train, ratings_test):
@@ -150,7 +191,8 @@ def main():
     ratings = pd.read_csv(path + os.path.sep + 'ratings.csv')
     movies = pd.read_csv(path + os.path.sep + 'movies.csv')
     movies = tokenize(movies)
-    movies, vocab = featurize(movies)
+    movies = featurize(movies)
+    """
     print('vocab:')
     print(sorted(vocab.items())[:10])
     ratings_train, ratings_test = train_test_split(ratings)
@@ -158,7 +200,7 @@ def main():
     predictions = make_predictions(movies, ratings_train, ratings_test)
     print('error=%f' % mean_absolute_error(predictions, ratings_test))
     print(predictions[:10])
-
+    """
 
 if __name__ == '__main__':
     main()
