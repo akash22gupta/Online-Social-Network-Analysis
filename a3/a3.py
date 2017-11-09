@@ -118,7 +118,6 @@ def featurize(movies):
             #print(col)
         matrix.append(csr_matrix((tfidf, (row, col)), shape=(1, len_all_genres)))
     movies['features'] = matrix
-    #print(vocab)
     #print(movies)
     return movies, vocab
 
