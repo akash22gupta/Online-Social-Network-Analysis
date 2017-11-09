@@ -199,7 +199,7 @@ def make_predictions(movies, ratings_train, ratings_test):
 
 
     for i in range(len(ratings_test.index)):
-        user = ratings_test.loc[i, 'userId']
+        movie_user = ratings_test.loc[i, 'userId']
         movie = ratings_test.loc[i, 'movieId']
         rating = []
         w_avg = []
@@ -209,20 +209,20 @@ def make_predictions(movies, ratings_train, ratings_test):
             if mov['movieId'] == movie:
                 a = mov['features']
 
-        for x in train:
-            if x['userId'] == user:
-                mid = x['movieId']
-                rt = x['rating']
+        for j in train:
+            if j['userId'] == movie_user:
+                rate = j['rating']
+                mid = j['movieId']
                 b = np.matrix([])
-                for mov in movies_id:
-                    if mov['movieId'] == mid:
-                        b = mov['features']
+                for m in movies_id:
+                    if m['movieId'] == mid:
+                        b = m['features']
                 weight = cosine_sim(a, b)
                 if weight > 0:
-                    rating.append(rt)
+                    rating.append(rate)
                     w_avg.append(weight)
                 else:
-                    right_pos.append(rt)
+                    right_pos.append(rate)
 
         if len(rating) > 0:
             for r in range(len(rating)):
