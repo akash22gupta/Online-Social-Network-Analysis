@@ -148,8 +148,8 @@ def cosine_sim(a, b):
     ###TODO
     pass
     A = a.toarray()[0]
-    b = np.array(b.toarray())
-    print(A)
+    B = b.toarray()[0]
+    return np.sum(A * B  / (np.sqrt(np.sum(A ** 2)) * np.sqrt(np.sum(B  ** 2))))
 
 
 def make_predictions(movies, ratings_train, ratings_test):
@@ -176,6 +176,63 @@ def make_predictions(movies, ratings_train, ratings_test):
     """
     ###TODO
     pass
+    pred = []
+    train = []
+    movies_id = []
+    ratings_train.index = range(ratings_train.shape[0])
+    ratings_test.index = range(ratings_test.shape[0])
+
+
+    for i in range(len(ratings_train.index)):
+        t_d = {}
+        t_d['userId'] = ratings_train.loc[i, 'userId']
+        t_d['movieId'] = ratings_train.loc[i, 'movieId']
+        t_d['rating'] = ratings_train.loc[i, 'rating']
+        train.append(t_d)
+
+
+    for i in range(len(movies)):
+        t_d = {}
+        t_d['movieId'] = movies.loc[i, 'movieId']
+        t_d['features'] = movies.loc[i, 'features']
+        movies_id.append(t_d)
+
+
+    for i in range(len(ratings_test.index)):
+        user = ratings_test.loc[i, 'userId']
+        movie = ratings_test.loc[i, 'movieId']
+        rating = []
+        w_avg = []
+        right_pos = []
+        a = np.matrix([])
+        for mov in movies_id:
+            if mov['movieId'] == movie:
+                a = mov['features']
+
+        for x in train:
+            if x['userId'] == user:
+                mid = x['movieId']
+                rt = x['rating']
+                b = np.matrix([])
+                for mov in movies_id:
+                    if mov['movieId'] == mid:
+                        b = mov['features']
+                weight = cosine_sim(a, b)
+                if weight > 0:
+                    rating.append(rt)
+                    w_avg.append(weight)
+                else:
+                    right_pos.append(rt)
+
+        if len(rating) > 0:
+            for r in range(len(rating)):
+                rating[r] = rating[r] * w_avg[r] / sum(w_avg)
+            pred.append(sum(rating))
+        else:
+            pred.append(np.asarray(right_pos).mean())
+
+    return np.asarray(pred)
+
 
 
 def mean_absolute_error(predictions, ratings_test):
@@ -191,8 +248,7 @@ def main():
     ratings = pd.read_csv(path + os.path.sep + 'ratings.csv')
     movies = pd.read_csv(path + os.path.sep + 'movies.csv')
     movies = tokenize(movies)
-    movies = featurize(movies)
-    """
+    movies,vocab = featurize(movies)
     print('vocab:')
     print(sorted(vocab.items())[:10])
     ratings_train, ratings_test = train_test_split(ratings)
@@ -200,7 +256,6 @@ def main():
     predictions = make_predictions(movies, ratings_train, ratings_test)
     print('error=%f' % mean_absolute_error(predictions, ratings_test))
     print(predictions[:10])
-    """
 
 if __name__ == '__main__':
     main()
