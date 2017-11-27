@@ -1,10 +1,12 @@
-Number of users collected: 970
+Number of users collected: 1019
 Number of messages collected:50600
-Number of communities detected: 76
-Average number of users per community: 0.23684210526315788
+Number of communities detected: 7
+Average number of users per community: 3.4285714285714284
 Number of instances per class found:
-	Total positive tweets instances: 44409
-	Total negative tweets instances: 2583
-	Total neutral tweets instances: 3608
+	Total positive tweets instances: 39043
+	Total negative tweets instances: 5765
+	Total neutral tweets instances: 5792
 One example from each class:
-	Positive sample: ("justice league was GOOD it was fun it was as good as some of the typical fav marvel ensemble films!! i'm speaking f… https://t.co/b5GbDSdjR8", 15, 0)
+	Positive sample: ('Justice League Comic Fan Art: The post Justice League Comic Fan Art appeared first on Desktop Wallpapers.… ', 10, 0)
+	Negative sample: ('@ArtikKnight @joeman999 @ComicBookDebate Shit - Man of Steel\nShit - Batman v Superman\nMore shit (plus a dash of dog… ', 0, 12)
+	Neutral sample: ('idk if this only happens to me but whenever I move a single thing in the freezer at least 15 things fall out onto m… ', 0, 0)

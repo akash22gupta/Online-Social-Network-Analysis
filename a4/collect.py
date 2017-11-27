@@ -78,11 +78,14 @@ def get_tweets(twitter):
                 t.append(tweet)
                 tweets.extend(t)
                 min_id=calculate_min_id(t)
-
+                for t1 in tweets:
+                    t1['text'] = re.sub('http\S+', '', t1['text'])
+                    # print(t1['text'])
+                    # print('\n')
                 pickle.dump(tweets, open('tweets.pkl', 'wb'))
     #remove urls from tweets
-    for t in tweets:
-        t['text'] = re.sub('http\S+', '', t['text'])
+    # for t in tweets:
+    #     t['text'] = re.sub('http\S+', '', t['text'])
 
     print("sample tweet:",tweets[50]['text'])
     return tweets
