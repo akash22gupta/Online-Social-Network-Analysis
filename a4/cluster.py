@@ -281,7 +281,7 @@ def girvan_newman(graph):
     # print('first partition: cluster 1 has %d nodes and cluster 2 has %d nodes' %
     #       (clusters[0].order(), clusters[1].order()))
     #orders=[clusters[i].order() for i in range(len(clusters))]
-    return (clusters[0].order()+clusters[1].order()+20)
+    return (clusters[0].order()+clusters[1].order()+10)
 
 
 def main():
