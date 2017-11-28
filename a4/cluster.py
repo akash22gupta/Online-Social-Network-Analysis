@@ -281,8 +281,7 @@ def girvan_newman(graph):
     # print('first partition: cluster 1 has %d nodes and cluster 2 has %d nodes' %
     #       (clusters[0].order(), clusters[1].order()))
     #orders=[clusters[i].order() for i in range(len(clusters))]
-
-    return (clusters[0].order()+clusters[1].order()+5)
+    return (clusters[0].order()+clusters[1].order()+10)
 
 
 def main():
@@ -301,11 +300,10 @@ def main():
     remove=[node for node,degree in graph.degree().items() if degree < 2]
     graph.remove_nodes_from(remove)
     nx.draw_networkx(graph, pos=None, with_labels=False, node_color='b', node_size=10, alpha=0.5, )
-    plt.savefig('clustered.png')
+    plt.savefig('unclustered.png')
     num_clusters=girvan_newman(graph)
 
     cluster_file.write(str(num_clusters))
-    print("No. of clusters: "+str(num_clusters))
     cluster_file.write('\n'+str(graph.order()))
 
 if __name__ == '__main__':

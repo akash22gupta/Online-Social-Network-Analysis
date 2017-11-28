@@ -21,15 +21,15 @@ def tokenize(tweet):
     return tokens
 
 def afinn_sentiment_analysis(terms, afinn):
-    pos = 0
-    neg = 0
+    positives = 0
+    negatives = 0
     for t in terms:
         if t in afinn:
             if afinn[t] > 0:
-                pos += afinn[t]
+                positives += afinn[t]
             else:
-                neg += -1 * afinn[t]
-    return pos, neg
+                negatives += -1 * afinn[t]
+    return positives, negatives
 
 def classification(tokens, tweets, afinn):
     positives = []

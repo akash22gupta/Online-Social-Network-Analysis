@@ -74,7 +74,11 @@ def get_tweets(twitter):
         for tweet in robust_request(twitter, 'search/tweets', query):
             check1 = all(x in tweet['user']['screen_name'].lower() for x in ['Zack', 'Snyder']) #removing the accounts belonging to the celebrities
             check2 = all(x in tweet['user']['screen_name'].lower() for x in ['Chris', 'Terrio'])   #removing the accounts belonging to the celebrities
-            if 'Warner Bros' not in tweet['user']['screen_name'].lower() and not check1 and not check2:
+            check3 = all(x in tweet['user']['screen_name'].lower() for x in ['Joss', 'Whedon'])   #removing the accounts belonging to the celebrities
+            check4 = all(x in tweet['user']['screen_name'].lower() for x in ['Ben', 'Affleck'])   #removing the accounts belonging to the celebrities
+            check5 = all(x in tweet['user']['screen_name'].lower() for x in ['Gal', 'Gadot'])   #removing the accounts belonging to the celebrities
+
+            if 'Warner Bros. Pictures' not in tweet['user']['screen_name'].lower() and not check1 and not check2 and not check3 and not check4 and not check5:
                 t.append(tweet)
                 tweets.extend(t)
                 min_id=calculate_min_id(t)

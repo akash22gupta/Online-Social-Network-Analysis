@@ -4,7 +4,7 @@ sumarize.py
 import pickle
 
 def main():
-    summary_file = open('summary.txt', 'w')
+    summary_file = open('summary.txt', 'w', encoding='utf-8')
     tweets = pickle.load(open("tweets.pkl", "rb"))
     positive_tweets = pickle.load(open("positive_tweets.pkl", "rb"))
     negative_tweets = pickle.load(open("negative_tweets.pkl", "rb"))
@@ -18,7 +18,7 @@ def main():
     avg_per_community=int(cluster[1])/num_communities
     summary_file.write("Number of users collected: " + str(len(unique_users)))
     summary_file.write('\nNumber of messages collected:' + str(len(tweets)))
-    summary_file.write('\nNumber of communities detected: ' + str(num_communities))
+    summary_file.write('\nNumber of communities discovered: ' + str(num_communities))
     summary_file.write('\nAverage number of users per community: ' + str(avg_per_community))
     summary_file.write('\nNumber of instances per class found:\n' + '\tTotal positive tweets instances: ' + str(len(positive_tweets)))
     summary_file.write('\n\tTotal negative tweets instances: ' + str(len(negative_tweets)))
