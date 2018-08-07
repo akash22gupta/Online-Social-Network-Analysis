@@ -1,33 +1,48 @@
-# a4
+This assignment was on open-ended exploration of online social networking, so I choose Twitter's data for analysis.
+There are 4 parts of this assignment as explained below.
 
-This assignment will allow you to do a more open-ended exploration of online social networking. The goal is to let you use some of the tools we've learned in class on your own. There are some requirements to constrain your work, defined below.
 
-To grade your project, I will run the following commands:
-```
-python collect.py
-python cluster.py
-python classify.py
-python summarize.py
-```
-So, your a4 folder should have (at least) those four files. **Please check that your files are named correctly, including using lower case letters!!!**
+collect.py -
+In this part I have collected the data (Tweets and Users) about the recently released movie "Justice League".
+ I have collected all the tweets which mentioned the movie name and then clustered based on the mentions in their tweets.
+  Later I classified them based on the negative and positive sentiments used in the tweets.
+  I have collected all the tweets using the Twitter API's search filter. This method is based on REST API call.
+  Also I have made sure that the tweets are not repeated. The number of queries made are 10 in order to collect data quickly.
 
-Here is what each script should do:
+cluster.py -
+In this part of assignment, I worked  data collected in the collect-phase and created a communities. To detect communities I have used
+ detection algorithm (girvan_newman). This approach works on the betweenness of the edge. In the process of detecting communities (or clustering)
+ I have filtered out those tweets which has @ in it, then I stored the link between the user and the mentioned user in his/her tweet.
+ Also, I made sure that the celebrities accounts starring in the movie are removed from these since we do not want the promotion tweets.
+ After forming these links, I have created a graph and ran girvan_newman algorithm on it to create the communities.
 
-- `collect.py`: This should collect data used in your analysis. This may mean submitting queries to Twitter or Facebook API, or scraping webpages. The data should be raw and come directly from the original source -- that is, you may not use data that others have already collected and processed for you (e.g., you may not use [SNAP](http://snap.stanford.edu/data/index.html) datasets). Running this script should create a file or files containing the data that you need for the subsequent phases of analysis.
-- `cluster.py`: This should read the data collected in the previous steps and use any community detection algorithm to cluster users into communities. You may write any files you need to save the results.
-- `classify.py`: This should classify your data along any dimension of your choosing (e.g., sentiment, gender, spam, etc.). You may write any files you need to save the results.
-- `summarize.py`: This should read the output of the previous methods to write a textfile called `summary.txt` containing the following entries:
+
+classify.py -
+In this part, I have done the sentiment analysis of the tweets using AFINN dataset.
+The tweets are classified according to the scores and then classified accordingly.
+classify data along twitter messages into 3 classifications, good, neutral and bad emotion.
+Emotion score > 0  Positive
+Emotion score = 0  Neutral
+Emotion score < 0  Negative
+
+
+summarize.py -
+This is just to generate the statistical data of our analysis. I have generated statistical records like
   - Number of users collected:
   - Number of messages collected:
   - Number of communities discovered:
   - Average number of users per community:
   - Number of instances per class found:
   - One example from each class:
+  and then saved them in summary.txt file for further reference.
 
-Additionally, you should create a plain text file called 'description.txt' that contains a brief summary of what your code does and any conclusions you have made from the analysis (3-5 paragraphs).
 
-Other notes:
 
-- You may use any of the algorithms in scikit-learn, networkx, scipy, numpy, nltk to perform your analysis. You do not need to implement the methods from scratch.
-- It is expected that when I run your `collect.py` script, I may get different data than you collected when you tested your code. While the final results of the analysis may differ, your scripts should still work on new datasets.
-- You may checkin to Github any configuration or data files that your code needs. For example, if you've used manually annotated training data to fit a classifier, you may store that in Github. However, you should not store large data files (e.g., >50Mb). However, please ensure that your code will run using the commands above. Ensure that you use *relative*, not *absolute* paths when needed. (E.g., don't put "C:/Aron/data" as a path.) I recommend checking that your code works on another system prior to submission.
+
+  conclusion -
+- In the these different phases of analysis I come to know like we need to collect the relevant data, and this is most important phase of our analysis.
+  If we get wrong data our whole analysis can go wrong. So this is very important phase. also I faced many different challenges like collecting
+  data for not very famous attributes cause very less data and time as well. so we need to very wise on data collection. This is most time consuming phase.
+- In clustering phase similarity calculation gives better result and good formation of cluster/communities.
+- We need to remove the outlier in this phase so it wont make any problem in next subsequent phases of classification
+- In classify phase we have to train our model based on the available train data. We have to take care of model over fitting.
